@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 
-export default function PatientRegisterPage() {
+export default function DoctorRegisterPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -61,11 +61,13 @@ export default function PatientRegisterPage() {
       phone,
       otp: formData.get('otp'),
       name: formData.get('name'),
-      password: formData.get('password') || undefined
+      licenseNumber: formData.get('licenseNumber'),
+      specialty: formData.get('specialty'),
+      experience: formData.get('experience')
     }
 
     try {
-      const response = await fetch('/api/auth/register/patient', {
+      const response = await fetch('/api/auth/register/doctor', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -74,8 +76,8 @@ export default function PatientRegisterPage() {
       const result = await response.json()
 
       if (response.ok) {
-        setSuccess('Registration successful! You can now sign in.')
-        setTimeout(() => router.push('/login'), 3000)
+        setSuccess('Registration successful! Please wait for admin approval.')
+        setTimeout(() => router.push('/doctor/login'), 5000)
       } else {
         setError(result.error || 'Registration failed')
       }
@@ -87,25 +89,25 @@ export default function PatientRegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Patient Registration
+            Doctor Registration
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Create your account to access healthcare services
+            Apply to join our healthcare platform as a medical professional
           </p>
-          <Badge variant="outline" className="mt-2 bg-green-50 text-green-700 border-green-200">
-            Instant Access
+          <Badge variant="outline" className="mt-2 bg-amber-50 text-amber-700 border-amber-200">
+            Requires Admin Approval
           </Badge>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Create Patient Account</CardTitle>
+            <CardTitle>Apply for Doctor Account</CardTitle>
             <CardDescription>
-              Join our healthcare platform to manage your medical records
+              Submit your credentials for verification and approval
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -122,23 +124,23 @@ export default function PatientRegisterPage() {
                     className="mt-1"
                   />
                   <p className="text-sm text-gray-500 mt-1">
-                    We'll send a verification code to this number
+                    This will be your login credential after approval
                   </p>
                 </div>
 
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <h3 className="font-medium text-green-800 mb-2">✓ Patient Benefits</h3>
-                  <ul className="text-sm text-green-700 space-y-1">
-                    <li>• Instant account activation</li>
-                    <li>• Access to medical records</li>
-                    <li>• Book appointments online</li>
-                    <li>• Secure health data storage</li>
-                    <li>• Communication with doctors</li>
+                <div className="bg-amber-50 p-4 rounded-lg">
+                  <h3 className="font-medium text-amber-800 mb-2">⚠️ Approval Process</h3>
+                  <ul className="text-sm text-amber-700 space-y-1">
+                    <li>• Application submitted to admin</li>
+                    <li>• Credentials verified manually</li>
+                    <li>• Medical license validated</li>
+                    <li>• Approval notification sent</li>
+                    <li>• Access granted after approval</li>
                   </ul>
                 </div>
 
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Sending OTP...' : 'Send Verification Code'}
+                  {loading ? 'Sending OTP...' : 'Start Application Process'}
                 </Button>
               </form>
             ) : (
@@ -155,7 +157,7 @@ export default function PatientRegisterPage() {
                     className="mt-1 text-center text-lg tracking-widest"
                   />
                   <p className="text-sm text-gray-500 mt-1">
-                    Enter the 6-digit code sent to {phone}
+                    Enter the code sent to {phone}
                   </p>
                 </div>
 
@@ -166,27 +168,69 @@ export default function PatientRegisterPage() {
                     name="name"
                     type="text"
                     required
-                    placeholder="John Doe"
+                    placeholder="Dr. John Doe"
+                    className="mt-1"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Include your professional title (Dr./Prof.)
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="licenseNumber">Medical License Number</Label>
+                  <Input
+                    id="licenseNumber"
+                    name="licenseNumber"
+                    type="text"
+                    required
+                    placeholder="MCI123456 or State License Number"
+                    className="mt-1"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Enter your valid medical practice license
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="specialty">Medical Specialty</Label>
+                  <Input
+                    id="specialty"
+                    name="specialty"
+                    type="text"
+                    required
+                    placeholder="e.g., Cardiology, Pediatrics, General Medicine"
                     className="mt-1"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="password">Password (Optional)</Label>
+                  <Label htmlFor="experience">Years of Experience</Label>
                   <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    placeholder="Create a password for backup login"
+                    id="experience"
+                    name="experience"
+                    type="number"
+                    min="0"
+                    max="50"
+                    placeholder="5"
                     className="mt-1"
                   />
                   <p className="text-sm text-gray-500 mt-1">
-                    You can login with either phone OTP or password
+                    Total years of medical practice (optional)
                   </p>
                 </div>
 
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h3 className="font-medium text-blue-800 mb-2">📋 What happens next?</h3>
+                  <ol className="text-sm text-blue-700 space-y-1">
+                    <li>1. Application submitted for review</li>
+                    <li>2. Admin verifies your credentials</li>
+                    <li>3. You receive approval notification</li>
+                    <li>4. Login access granted</li>
+                  </ol>
+                </div>
+
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Creating Account...' : 'Complete Registration'}
+                  {loading ? 'Submitting Application...' : 'Submit for Approval'}
                 </Button>
 
                 <Button
@@ -214,15 +258,15 @@ export default function PatientRegisterPage() {
 
             <div className="text-center mt-6 pt-4 border-t">
               <p className="text-sm text-gray-600">
-                Already have an account?{' '}
-                <Link href="/login" className="text-blue-600 hover:underline font-medium">
+                Already have an approved account?{' '}
+                <Link href="/doctor/login" className="text-blue-600 hover:underline font-medium">
                   Sign in here
                 </Link>
               </p>
               <p className="text-xs text-gray-500 mt-2">
-                Are you a healthcare provider?{' '}
-                <Link href="/doctor/register" className="text-blue-600 hover:underline">
-                  Register as Doctor
+                Are you a patient?{' '}
+                <Link href="/register" className="text-blue-600 hover:underline">
+                  Register as Patient
                 </Link>
               </p>
             </div>

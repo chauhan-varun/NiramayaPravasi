@@ -155,16 +155,18 @@ Visit `http://localhost:3000` to access the application.
 app/
 ├── (public)/
 │   ├── admin/           # Admin dashboard
+│   │   ├── login/       # Admin login page
 │   │   └── super/       # Super admin dashboard
-│   ├── doctor/          # Doctor dashboard  
-│   └── (patient)/
+│   ├── doctor/          # Doctor dashboard & auth
+│   │   ├── login/       # Doctor login page
+│   │   └── register/    # Doctor registration page
+│   └── (patient)/       # Patient routes
+│       ├── login/       # Patient login page
+│       ├── register/    # Patient registration page
 │       └── patient/     # Patient dashboard
 ├── api/
 │   ├── auth/           # Authentication endpoints
 │   └── admin/          # Admin management endpoints
-├── auth/
-│   ├── signin/         # Sign in page
-│   └── register/       # Registration page
 components/
 ├── ui/                 # shadcn/ui components
 └── auth-provider.jsx   # NextAuth session provider
@@ -189,17 +191,42 @@ scripts/
 - **Rate limiting** on OTP requests
 - **Secure session management**
 
-## 🚦 Getting Started - First Login
+## 🚦 Getting Started - Authentication Routes
 
-1. **Super Admin**: Use credentials from `.env.local`
-   - Email: `root@system.com`
-   - Password: `SuperAdmin@123`
+### Separate Login Pages for Each Role
 
-2. **Create Admin**: Login as Super Admin → Admin Management → Create Admin
+#### Patient Access
+- **Login**: `/login` 
+- **Register**: `/patient/register`
+- **Methods**: Phone + OTP or Phone + Password
 
-3. **Doctor Registration**: Register → Doctor → Complete approval process
+#### Doctor Access  
+- **Login**: `/doctor/login`
+- **Register**: `/doctor/register` 
+- **Method**: Phone + OTP (requires admin approval)
 
-4. **Patient Registration**: Register → Patient → Immediate access
+#### Admin Access
+- **Login**: `/admin/login`
+- **Method**: Email + Password or Google OAuth
+
+#### Super Admin Access
+- **Login**: `/admin/login` (same as admin, but with super admin credentials)
+- **Method**: Email + Password
+
+### First Login Steps
+
+1. **Super Admin**: 
+   - Go to `/admin/login`
+   - Use credentials from `.env.local`: `root@system.com` / `SuperAdmin@123`
+
+2. **Create Admin**: 
+   - Login as Super Admin → Admin Management → Create Admin
+
+3. **Doctor Registration**: 
+   - Go to `/doctor/register` → Complete application → Wait for admin approval
+
+4. **Patient Registration**: 
+   - Go to `/patient/register` → Instant access after verification
 
 ## 📋 Development Commands
 

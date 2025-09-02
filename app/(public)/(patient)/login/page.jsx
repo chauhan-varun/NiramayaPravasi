@@ -74,7 +74,7 @@ export default function PatientLoginPage() {
       } else {
         const session = await getSession()
         if (session?.user?.role === 'PATIENT') {
-          router.push('/patient')
+          router.push('/')
         } else {
           setError('Access denied: Invalid user role')
         }
@@ -109,7 +109,7 @@ export default function PatientLoginPage() {
       } else {
         const session = await getSession()
         if (session?.user?.role === 'PATIENT') {
-          router.push('/patient')
+          router.push('/')
         } else {
           setError('Access denied: Invalid user role')
         }
@@ -274,7 +274,7 @@ export default function PatientLoginPage() {
             <div className="text-center pt-4 border-t">
               <p className="text-sm text-gray-600">
                 Don't have an account?{' '}
-                <Link href="/patient/register" className="text-blue-600 hover:underline font-medium">
+                <Link href="/register" className="text-blue-600 hover:underline font-medium">
                   Register as Patient
                 </Link>
               </p>
