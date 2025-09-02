@@ -6,12 +6,20 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "setup:super-admin": "node scripts/create-super-admin.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
+    "@hookform/resolvers": "^5.2.1",
     "@prisma/client": "^6.15.0",
+    "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-tabs": "^1.1.13",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -24,9 +32,11 @@
     "qrcode": "^1.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-hook-form": "^7.62.0",
     "speakeasy": "^2.0.0",
     "tailwind-merge": "^3.3.1",
-    "twilio": "^5.8.2"
+    "twilio": "^5.8.2",
+    "zod": "^4.1.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

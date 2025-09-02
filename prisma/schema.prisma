@@ -64,7 +64,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   createdBy     String?   @db.ObjectId
-  creator       User?     @relation("UserCreator", fields: [createdBy], references: [id])
+  creator       User?     @relation("UserCreator", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdUsers  User[]    @relation("UserCreator")
   
   // Medical records (for patients)
