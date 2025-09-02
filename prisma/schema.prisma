@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  phone         String?   @unique
+  phoneVerified DateTime?
+  passwordHash  String?
+  role          UserRole  @default(PATIENT)
+  status        UserStatus @default(ACTIVE)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // MFA fields
+  mfaEnabled    Boolean   @default(false)
+  mfaSecret     String?
+  
+  // For doctors - approval workflow
+  licenseNumber String?
+  specialty     String?
+  experience    Int?
+  
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  createdBy     String?   @db.ObjectId
+  creator       User?     @relation("UserCreator", fields: [createdBy], references: [id])
+  createdUsers  User[]    @relation("UserCreator")
+  
+  // Medical records (for patients)
+  patientRecords PatientRecord[] @relation("PatientRecords")
+  doctorRecords  PatientRecord[] @relation("DoctorRecords")
+}
+
+model VerificationToken {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model OTPVerification {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  phone       String
+  otp         String
+  purpose     OTPPurpose
+  expiresAt   DateTime
+  verified    Boolean   @default(false)
+  attempts    Int       @default(0)
+  createdAt   DateTime  @default(now())
+}
+
+model PatientRecord {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  patientId   String   @db.ObjectId
+  doctorId    String   @db.ObjectId
+  diagnosis   String
+  treatment   String
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  patient     User     @relation("PatientRecords", fields: [patientId], references: [id])
+  doctor      User     @relation("DoctorRecords", fields: [doctorId], references: [id])
+}
+
+enum UserRole {
+  SUPERADMIN
+  ADMIN
+  DOCTOR
+  PATIENT
+  PENDING_DOCTOR
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  SUSPENDED
+}
+
+enum OTPPurpose {
+  REGISTRATION
+  LOGIN
+  PASSWORD_RESET
+}
