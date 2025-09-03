@@ -15,12 +15,12 @@ export default function PatientDashboard() {
     if (status === 'loading') return
     
     if (!session) {
-      router.push('/auth/signin')
+      router.push('/login')
       return
     }
 
     if (session.user.role !== 'PATIENT') {
-      router.push('/auth/signin')
+      router.push('/login')
       return
     }
   }, [session, status, router])

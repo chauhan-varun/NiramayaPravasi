@@ -59,6 +59,9 @@ model User {
   licenseNumber String?
   specialty     String?
   experience    Int?
+  isApproved    Boolean   @default(false)
+  approvedAt    DateTime?
+  approvedBy    String?   @db.ObjectId
   
   // Relations
   accounts      Account[]

@@ -12,22 +12,28 @@ export default function AdminDashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [pendingDoctors, setPendingDoctors] = useState([])
+  const [approvedDoctors, setApprovedDoctors] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
+    console.log('Admin Dashboard Check:', { status, session })
     if (status === 'loading') return
     
     if (!session) {
-      router.push('/auth/signin')
+      console.log('No session, redirecting to login')
+      router.push('/admin/login')
       return
     }
 
+    console.log('User role:', session.user?.role, 'User email:', session.user?.email)
     if (!['ADMIN', 'SUPERADMIN'].includes(session.user.role)) {
-      router.push('/auth/signin')
+      console.log('Role check failed, redirecting to login')
+      router.push('/admin/login')
       return
     }
 
+    console.log('Access granted, fetching doctors')
     fetchPendingDoctors()
   }, [session, status, router])
 
@@ -37,9 +43,10 @@ export default function AdminDashboard() {
       const data = await response.json()
       if (response.ok) {
         setPendingDoctors(data.pendingDoctors)
+        setApprovedDoctors(data.approvedDoctors)
       }
     } catch (err) {
-      setError('Failed to fetch pending doctors')
+      setError('Failed to fetch doctors')
     }
   }
 
@@ -119,16 +126,12 @@ export default function AdminDashboard() {
 
             <Card>
               <CardHeader>
-                <CardTitle>System Users</CardTitle>
-                <CardDescription>Manage system access</CardDescription>
+                <CardTitle>Approved Doctors</CardTitle>
+                <CardDescription>Currently active doctors</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-600">
-                  View and manage all system users.
-                </p>
-                <Button className="mt-4" disabled>
-                  View Users (Coming Soon)
-                </Button>
+                <div className="text-2xl font-bold">{approvedDoctors.length}</div>
+                <p className="text-sm text-gray-600">Active healthcare providers</p>
               </CardContent>
             </Card>
 
@@ -148,67 +151,130 @@ export default function AdminDashboard() {
             </Card>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Pending Doctor Approvals</CardTitle>
-              <CardDescription>
-                Review and approve doctor registration requests
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {pendingDoctors.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">
-                  No pending doctor approvals
-                </p>
-              ) : (
-                <div className="space-y-4">
-                  {pendingDoctors.map((doctor) => (
-                    <div key={doctor.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h3 className="font-semibold">{doctor.name}</h3>
-                          <p className="text-sm text-gray-600">
-                            Phone: {doctor.phone}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            License: {doctor.licenseNumber}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            Specialty: {doctor.specialty}
-                          </p>
-                          {doctor.experience && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Pending Doctor Approvals</CardTitle>
+                <CardDescription>
+                  Review and approve doctor registration requests
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {pendingDoctors.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">
+                    No pending doctor approvals
+                  </p>
+                ) : (
+                  <div className="space-y-4 max-h-96 overflow-y-auto">
+                    {pendingDoctors.map((doctor) => (
+                      <div key={doctor.id} className="border rounded-lg p-4">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="font-semibold">{doctor.name}</h3>
+                              <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                                PENDING_DOCTOR
+                              </Badge>
+                            </div>
                             <p className="text-sm text-gray-600">
-                              Experience: {doctor.experience} years
+                              Email: {doctor.email}
                             </p>
-                          )}
-                          <p className="text-xs text-gray-500 mt-2">
-                            Applied: {new Date(doctor.createdAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div className="flex space-x-2 ml-4">
-                          <Button
-                            size="sm"
-                            onClick={() => handleDoctorAction(doctor.id, 'approve')}
-                            disabled={loading}
-                          >
-                            Approve
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleDoctorAction(doctor.id, 'reject')}
-                            disabled={loading}
-                          >
-                            Reject
-                          </Button>
+                            <p className="text-sm text-gray-600">
+                              Phone: {doctor.phone}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              License: {doctor.licenseNumber}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              Specialty: {doctor.specialty || 'Not specified'}
+                            </p>
+                            {doctor.experience && (
+                              <p className="text-sm text-gray-600">
+                                Experience: {doctor.experience} years
+                              </p>
+                            )}
+                            <p className="text-xs text-gray-500 mt-2">
+                              Applied: {new Date(doctor.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="flex space-x-2 ml-4">
+                            <Button
+                              size="sm"
+                              onClick={() => handleDoctorAction(doctor.id, 'approve')}
+                              disabled={loading}
+                            >
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleDoctorAction(doctor.id, 'reject')}
+                              disabled={loading}
+                            >
+                              Reject
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Approved Doctors</CardTitle>
+                <CardDescription>
+                  Currently active healthcare providers
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {approvedDoctors.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">
+                    No approved doctors yet
+                  </p>
+                ) : (
+                  <div className="space-y-4 max-h-96 overflow-y-auto">
+                    {approvedDoctors.map((doctor) => (
+                      <div key={doctor.id} className="border rounded-lg p-4">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="font-semibold">{doctor.name}</h3>
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                DOCTOR
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-600">
+                              Email: {doctor.email}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              Phone: {doctor.phone}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              License: {doctor.licenseNumber}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              Specialty: {doctor.specialty || 'Not specified'}
+                            </p>
+                            {doctor.experience && (
+                              <p className="text-sm text-gray-600">
+                                Experience: {doctor.experience} years
+                              </p>
+                            )}
+                            <p className="text-xs text-gray-500 mt-2">
+                              Status: {doctor.status}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </main>
     </div>

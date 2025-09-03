@@ -15,12 +15,12 @@ export default function DoctorDashboard() {
     if (status === 'loading') return
     
     if (!session) {
-      router.push('/auth/signin')
+      router.push('/doctor/login')
       return
     }
 
     if (session.user.role !== 'DOCTOR') {
-      router.push('/auth/signin')
+      router.push('/doctor/login')
       return
     }
   }, [session, status, router])
