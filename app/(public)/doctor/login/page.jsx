@@ -7,82 +7,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
-import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '@/components/ui/input-otp'
-import { PhoneNumberInput } from '@/components/ui/phone-input'
 import Link from 'next/link'
-import './otp-styles.css'
 import { toast } from "sonner"
 
 export default function DoctorLoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
-  const [otpSent, setOtpSent] = useState(false)
-  const [phone, setPhone] = useState('')
-  const [otpValue, setOtpValue] = useState('')
   const router = useRouter()
 
-  // Send OTP
-  const handleSendOTP = async (e) => {
+  // Email + Password Login
+  const handleEmailLogin = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError('')
 
-    if (!phone) {
-      toast.error("Phone number required", {
-        description: 'Please enter a valid phone number',
-        duration: 3000,
-      })
-      setLoading(false)
-      return
-    }
+    const formData = new FormData(e.target)
+    const email = formData.get('email')
+    const password = formData.get('password')
 
-    try {
-      const response = await fetch('/api/auth/otp/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phone, purpose: 'LOGIN' })
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        setOtpSent(true)
-        setSuccess('OTP sent successfully!')
-        toast.success("OTP sent successfully!", {
-          description: `We've sent a 6-digit code to ${phone}`,
-          duration: 4000,
-        })
-      } else {
-        setError(data.error || 'Failed to send OTP')
-        toast.error("Failed to send OTP", {
-          description: data.error || 'Please try again',
-          duration: 4000,
-        })
-      }
-    } catch (err) {
-      setError('Failed to send OTP')
-      toast.error("Failed to send OTP", {
-        description: 'Please check your connection and try again',
-        duration: 4000,
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Login with OTP
-  const handleOTPLogin = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-
-    if (!otpValue || otpValue.length !== 6) {
-      setError('Please enter a valid 6-digit OTP')
-      toast.error("Invalid OTP", {
-        description: 'Please enter a valid 6-digit OTP',
+    if (!email || !password) {
+      toast.error("All fields required", {
+        description: 'Please enter both email and password',
         duration: 3000,
       })
       setLoading(false)
@@ -91,16 +37,16 @@ export default function DoctorLoginPage() {
 
     try {
       const result = await signIn('credentials', {
-        phone,
-        otp: otpValue,
-        loginType: 'phone',
+        email,
+        password,
+        loginType: 'email',
         redirect: false
       })
 
       if (result?.error) {
-        setError('Invalid OTP or account not approved')
+        setError('Invalid email or password')
         toast.error("Login failed", {
-          description: 'Invalid OTP or account not approved',
+          description: 'Invalid email or password. Please try again.',
           duration: 4000,
         })
       } else {
@@ -136,6 +82,23 @@ export default function DoctorLoginPage() {
     }
   }
 
+  // Google OAuth Login
+  const handleGoogleLogin = async () => {
+    setLoading(true)
+    try {
+      await signIn('google', { 
+        callbackUrl: '/doctor',
+        redirect: true 
+      })
+    } catch (error) {
+      toast.error("Google login failed", {
+        description: 'Please try again or use email login',
+        duration: 4000,
+      })
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -158,85 +121,103 @@ export default function DoctorLoginPage() {
               Secure access for healthcare professionals
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            {!otpSent ? (
-              <form onSubmit={handleSendOTP} className="space-y-4">
-                <div>
-                  <Label htmlFor="phone">Registered Phone Number</Label>
-                  <PhoneNumberInput
-                    value={phone}
-                    onChange={setPhone}
-                    placeholder="Enter your registered phone number"
-                    className="mt-1"
-                  />
-                  <p className="text-sm text-gray-500 mt-1">
-                    Use the phone number from your approved registration
-                  </p>
-                </div>
+          <CardContent className="space-y-6">
+            {/* Email + Password Login Form */}
+            <form onSubmit={handleEmailLogin} className="space-y-4">
+              <div>
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  placeholder="doctor@example.com"
+                  className="mt-1"
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  Use your registered email address
+                </p>
+              </div>
 
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h3 className="font-medium text-blue-800 mb-2">🏥 Doctor Access</h3>
-                  <ul className="text-sm text-blue-700 space-y-1">
-                    <li>• Patient record management</li>
-                    <li>• Create treatment plans</li>
-                    <li>• Prescription management</li>
-                    <li>• Appointment scheduling</li>
-                    <li>• Secure patient communication</li>
-                  </ul>
-                </div>
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  autoComplete="current-password"
+                  placeholder="Enter your password"
+                  className="mt-1"
+                />
+              </div>
 
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Sending OTP...' : 'Send Verification Code'}
-                </Button>
-              </form>
-            ) : (
-              <form onSubmit={handleOTPLogin} className="space-y-4">
-                <div>
-                  <Label>Enter OTP sent to {phone}</Label>
-                  <div className="mt-2 flex justify-center">
-                    <InputOTP
-                      maxLength={6}
-                      value={otpValue}
-                      onChange={setOtpValue}
-                      pattern="[0-9]*"
-                      data-input-otp
-                      className="gap-2"
-                      autoComplete="one-time-code"
-                      inputMode="numeric"
-                    >
-                      <InputOTPGroup>
-                        <InputOTPSlot index={0} autoComplete="off" />
-                        <InputOTPSlot index={1} autoComplete="off" />
-                        <InputOTPSlot index={2} autoComplete="off" />
-                      </InputOTPGroup>
-                      <InputOTPSeparator />
-                      <InputOTPGroup>
-                        <InputOTPSlot index={3} autoComplete="off" />
-                        <InputOTPSlot index={4} autoComplete="off" />
-                        <InputOTPSlot index={5} autoComplete="off" />
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </div>
-                  <p className="text-sm text-gray-500 mt-1 text-center">
-                    Please enter the 6-digit OTP
-                  </p>
-                </div>
-                
-                <Button type="submit" className="w-full" disabled={loading || otpValue.length !== 6}>
-                  {loading ? 'Verifying...' : 'Verify & Sign In'}
-                </Button>
-                
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => setOtpSent(false)}
-                >
-                  Change Phone Number
-                </Button>
-              </form>
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h3 className="font-medium text-blue-800 mb-2">🏥 Doctor Access</h3>
+                <ul className="text-sm text-blue-700 space-y-1">
+                  <li>• Patient record management</li>
+                  <li>• Create treatment plans</li>
+                  <li>• Prescription management</li>
+                  <li>• Appointment scheduling</li>
+                  <li>• Secure patient communication</li>
+                </ul>
+              </div>
+
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Signing in...' : 'Sign In'}
+              </Button>
+            </form>
+
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+
+            {/* Google Login */}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleGoogleLogin}
+              disabled={loading}
+              className="w-full"
+            >
+              <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                <path
+                  fill="currentColor"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="currentColor"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="currentColor"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                />
+                <path
+                  fill="currentColor"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                />
+              </svg>
+              Sign in with Google
+            </Button>
+
+            {/* Error Display */}
+            {error && (
+              <div className="text-center text-sm text-red-600 bg-red-50 p-3 rounded-lg">
+                {error}
+              </div>
             )}
 
+            {/* Registration and Other Login Links */}
             <div className="text-center mt-6 pt-4 border-t">
               <p className="text-sm text-gray-600">
                 Not registered yet?{' '}

@@ -1,63 +1,54 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { formatPhoneNumber } from '@/lib/twilio'
+import { hashPassword } from '@/lib/auth'
 
 export async function POST(request) {
   try {
     const { 
+      email,
+      password,
       phone, 
-      otp, 
       name, 
       licenseNumber, 
       specialty, 
       experience 
     } = await request.json()
 
-    if (!phone || !otp || !name) {
+    if (!email || !password || !phone || !name || !licenseNumber) {
       return NextResponse.json(
-        { error: 'Phone, OTP, and name are required' },
+        { error: 'Email, password, phone, name, and license number are required' },
         { status: 400 }
       )
     }
 
-    const formattedPhone = formatPhoneNumber(phone)
-
-    // Verify OTP first
-    const otpRecord = await prisma.oTPVerification.findFirst({
+    // Check if user already exists with email or phone
+    const existingUser = await prisma.user.findFirst({
       where: {
-        phone: formattedPhone,
-        otp,
-        verified: false,
-        expiresAt: { gt: new Date() },
-        purpose: 'REGISTRATION'
+        OR: [
+          { email: email },
+          { phone: phone }
+        ]
       }
-    })
-
-    if (!otpRecord) {
-      return NextResponse.json(
-        { error: 'Invalid or expired OTP' },
-        { status: 400 }
-      )
-    }
-
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { phone: formattedPhone }
     })
 
     if (existingUser) {
       return NextResponse.json(
-        { error: 'User with this phone number already exists' },
+        { error: 'User with this email or phone number already exists' },
         { status: 409 }
       )
     }
 
+    // Hash password
+    const passwordHash = await hashPassword(password)
+
     // Create doctor with pending status
     const doctor = await prisma.user.create({
       data: {
-        phone: formattedPhone,
+        email,
+        phone,
         name,
-        phoneVerified: new Date(),
+        passwordHash,
+        emailVerified: new Date(), // Auto-verify for now, can be changed later
         role: 'PENDING_DOCTOR',
         status: 'PENDING',
         licenseNumber,
@@ -66,16 +57,11 @@ export async function POST(request) {
       }
     })
 
-    // Mark OTP as verified
-    await prisma.oTPVerification.update({
-      where: { id: otpRecord.id },
-      data: { verified: true }
-    })
-
     return NextResponse.json({
       message: 'Doctor registration successful. Waiting for admin approval.',
       user: {
         id: doctor.id,
+        email: doctor.email,
         phone: doctor.phone,
         name: doctor.name,
         role: doctor.role,
