@@ -10,10 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '@/components/ui/input-otp'
-import { PhoneNumberInput } from '@/components/ui/phone-input'
 import Link from 'next/link'
-import './otp-styles.css'
-import { toast } from "sonner"
 
 export default function PatientLoginPage() {
   const [loading, setLoading] = useState(false)
@@ -22,7 +19,6 @@ export default function PatientLoginPage() {
   const [otpSent, setOtpSent] = useState(false)
   const [phone, setPhone] = useState('')
   const [otpValue, setOtpValue] = useState('')
-  const [passwordPhone, setPasswordPhone] = useState('')
   const [loginMethod, setLoginMethod] = useState('otp') // 'otp' or 'password'
   const router = useRouter()
 
@@ -32,20 +28,15 @@ export default function PatientLoginPage() {
     setLoading(true)
     setError('')
 
-    if (!phone) {
-      toast.error("Phone number required", {
-        description: 'Please enter a valid phone number',
-        duration: 3000,
-      })
-      setLoading(false)
-      return
-    }
+    const formData = new FormData(e.target)
+    const phoneNumber = formData.get('phone')
+    setPhone(phoneNumber)
 
     try {
       const response = await fetch('/api/auth/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phone, purpose: 'LOGIN' })
+        body: JSON.stringify({ phone: phoneNumber, purpose: 'LOGIN' })
       })
 
       const data = await response.json()
@@ -53,23 +44,11 @@ export default function PatientLoginPage() {
       if (response.ok) {
         setOtpSent(true)
         setSuccess('OTP sent successfully')
-        toast.success("OTP sent successfully!", {
-          description: `We've sent a 6-digit code to ${phone}`,
-          duration: 4000,
-        })
       } else {
         setError(data.error || 'Failed to send OTP')
-        toast.error("Failed to send OTP", {
-          description: data.error || 'Please try again',
-          duration: 4000,
-        })
       }
     } catch (err) {
       setError('Failed to send OTP')
-      toast.error("Failed to send OTP", {
-        description: 'Please check your connection and try again',
-        duration: 4000,
-      })
     } finally {
       setLoading(false)
     }
@@ -82,10 +61,6 @@ export default function PatientLoginPage() {
 
     if (!otpValue || otpValue.length !== 6) {
       setError('Please enter a valid 6-digit OTP')
-      toast.error("Invalid OTP", {
-        description: 'Please enter a valid 6-digit OTP',
-        duration: 3000,
-      })
       setLoading(false)
       return
     }
@@ -100,32 +75,16 @@ export default function PatientLoginPage() {
 
       if (result?.error) {
         setError('Invalid OTP')
-        toast.error("Invalid OTP", {
-          description: 'The OTP you entered is incorrect. Please try again.',
-          duration: 4000,
-        })
       } else {
         const session = await getSession()
         if (session?.user?.role === 'PATIENT') {
-          toast.success("Login successful!", {
-            description: 'Welcome back! Redirecting to your dashboard...',
-            duration: 3000,
-          })
           router.push('/')
         } else {
           setError('Access denied: Invalid user role')
-          toast.error("Access denied", {
-            description: 'Invalid user role for patient portal',
-            duration: 4000,
-          })
         }
       }
     } catch (err) {
       setError('Login failed')
-      toast.error("Login failed", {
-        description: 'Something went wrong. Please try again.',
-        duration: 4000,
-      })
     } finally {
       setLoading(false)
     }
@@ -137,30 +96,13 @@ export default function PatientLoginPage() {
     setLoading(true)
     setError('')
 
-    if (!passwordPhone) {
-      toast.error("Phone number required", {
-        description: 'Please enter a valid phone number',
-        duration: 3000,
-      })
-      setLoading(false)
-      return
-    }
-
     const formData = new FormData(e.target)
+    const phone = formData.get('phone')
     const password = formData.get('password')
-
-    if (!password) {
-      toast.error("Password required", {
-        description: 'Please enter your password',
-        duration: 3000,
-      })
-      setLoading(false)
-      return
-    }
 
     try {
       const result = await signIn('credentials', {
-        phone: passwordPhone,
+        phone,
         password,
         loginType: 'phone-password',
         redirect: false
@@ -168,32 +110,16 @@ export default function PatientLoginPage() {
 
       if (result?.error) {
         setError('Invalid phone or password')
-        toast.error("Login failed", {
-          description: 'Invalid phone number or password. Please try again.',
-          duration: 4000,
-        })
       } else {
         const session = await getSession()
         if (session?.user?.role === 'PATIENT') {
-          toast.success("Login successful!", {
-            description: 'Welcome back! Redirecting to your dashboard...',
-            duration: 3000,
-          })
           router.push('/')
         } else {
           setError('Access denied: Invalid user role')
-          toast.error("Access denied", {
-            description: 'Invalid user role for patient portal',
-            duration: 4000,
-          })
         }
       }
     } catch (err) {
       setError('Login failed')
-      toast.error("Login failed", {
-        description: 'Something went wrong. Please try again.',
-        duration: 4000,
-      })
     } finally {
       setLoading(false)
     }
@@ -257,10 +183,13 @@ export default function PatientLoginPage() {
                   <form onSubmit={handleSendOTP} className="space-y-4">
                     <div>
                       <Label htmlFor="phone">Phone Number</Label>
-                      <PhoneNumberInput
-                        value={phone}
-                        onChange={setPhone}
-                        placeholder="Enter your phone number"
+                      <Input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        required
+                        autoComplete="tel"
+                        placeholder="+91 9876543210"
                         className="mt-1"
                       />
                       <p className="text-sm text-gray-500 mt-1">
@@ -283,19 +212,17 @@ export default function PatientLoginPage() {
                           pattern="[0-9]*"
                           data-input-otp
                           className="gap-2"
-                          autoComplete="one-time-code"
-                          inputMode="numeric"
                         >
                           <InputOTPGroup>
-                            <InputOTPSlot index={0} autoComplete="off" />
-                            <InputOTPSlot index={1} autoComplete="off" />
-                            <InputOTPSlot index={2} autoComplete="off" />
+                            <InputOTPSlot index={0} />
+                            <InputOTPSlot index={1} />
+                            <InputOTPSlot index={2} />
                           </InputOTPGroup>
                           <InputOTPSeparator />
                           <InputOTPGroup>
-                            <InputOTPSlot index={3} autoComplete="off" />
-                            <InputOTPSlot index={4} autoComplete="off" />
-                            <InputOTPSlot index={5} autoComplete="off" />
+                            <InputOTPSlot index={3} />
+                            <InputOTPSlot index={4} />
+                            <InputOTPSlot index={5} />
                           </InputOTPGroup>
                         </InputOTP>
                       </div>
@@ -324,10 +251,13 @@ export default function PatientLoginPage() {
               <form onSubmit={handlePasswordLogin} className="space-y-4">
                 <div>
                   <Label htmlFor="phone">Phone Number</Label>
-                  <PhoneNumberInput
-                    value={passwordPhone}
-                    onChange={setPasswordPhone}
-                    placeholder="Enter your phone number"
+                  <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    required
+                    autoComplete="tel"
+                    placeholder="+91 9876543210"
                     className="mt-1"
                   />
                 </div>
@@ -346,6 +276,19 @@ export default function PatientLoginPage() {
                   {loading ? 'Signing in...' : 'Sign In'}
                 </Button>
               </form>
+            )}
+
+            {/* Error and Success Messages */}
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {success && (
+              <Alert>
+                <AlertDescription>{success}</AlertDescription>
+              </Alert>
             )}
 
             {/* Registration Link */}

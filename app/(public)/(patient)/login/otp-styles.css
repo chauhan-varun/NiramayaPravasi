@@ -1,0 +1,46 @@
+/* OTP Input Styles */
+[data-input-otp] {
+    --input-otp-focus-color: hsl(var(--ring));
+}
+
+[data-input-otp] input[data-input-otp-slot] {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid hsl(var(--border));
+    border-radius: calc(var(--radius) - 2px);
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    font-variant-numeric: tabular-nums;
+
+    /* Prevent autofill */
+    -webkit-text-security: none !important;
+}
+
+[data-input-otp] input[data-input-otp-slot]:focus {
+    outline: none;
+    border-color: var(--input-otp-focus-color);
+    box-shadow: 0 0 0 2px var(--input-otp-focus-color);
+    z-index: 10;
+}
+
+[data-input-otp] input[data-input-otp-slot][data-input-otp-slot-active] {
+    border-color: var(--input-otp-focus-color);
+}
+
+[data-input-otp] input[data-input-otp-slot]:hover {
+    border-color: hsl(var(--border));
+}
+
+/* Prevent browser autofill */
+[data-input-otp] input[data-input-otp-slot]:-webkit-autofill,
+[data-input-otp] input[data-input-otp-slot]:-webkit-autofill:hover,
+[data-input-otp] input[data-input-otp-slot]:-webkit-autofill:focus {
+    -webkit-text-fill-color: hsl(var(--foreground)) !important;
+    -webkit-box-shadow: 0 0 0px 1000px hsl(var(--background)) inset !important;
+    background-clip: content-box !important;
+}

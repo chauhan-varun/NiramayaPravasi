@@ -9,7 +9,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
+import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '@/components/ui/input-otp'
+import { PhoneNumberInput } from '@/components/ui/phone-input'
 import Link from 'next/link'
+import './otp-styles.css'
+import { toast } from "sonner"
 
 export default function DoctorLoginPage() {
   const [loading, setLoading] = useState(false)
@@ -17,6 +21,7 @@ export default function DoctorLoginPage() {
   const [success, setSuccess] = useState('')
   const [otpSent, setOtpSent] = useState(false)
   const [phone, setPhone] = useState('')
+  const [otpValue, setOtpValue] = useState('')
   const router = useRouter()
 
   // Send OTP
@@ -25,15 +30,20 @@ export default function DoctorLoginPage() {
     setLoading(true)
     setError('')
 
-    const formData = new FormData(e.target)
-    const phoneNumber = formData.get('phone')
-    setPhone(phoneNumber)
+    if (!phone) {
+      toast.error("Phone number required", {
+        description: 'Please enter a valid phone number',
+        duration: 3000,
+      })
+      setLoading(false)
+      return
+    }
 
     try {
       const response = await fetch('/api/auth/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phoneNumber, purpose: 'LOGIN' })
+        body: JSON.stringify({ phone: phone, purpose: 'LOGIN' })
       })
 
       const data = await response.json()
@@ -41,11 +51,23 @@ export default function DoctorLoginPage() {
       if (response.ok) {
         setOtpSent(true)
         setSuccess('OTP sent successfully!')
+        toast.success("OTP sent successfully!", {
+          description: `We've sent a 6-digit code to ${phone}`,
+          duration: 4000,
+        })
       } else {
         setError(data.error || 'Failed to send OTP')
+        toast.error("Failed to send OTP", {
+          description: data.error || 'Please try again',
+          duration: 4000,
+        })
       }
     } catch (err) {
       setError('Failed to send OTP')
+      toast.error("Failed to send OTP", {
+        description: 'Please check your connection and try again',
+        duration: 4000,
+      })
     } finally {
       setLoading(false)
     }
@@ -57,31 +79,58 @@ export default function DoctorLoginPage() {
     setLoading(true)
     setError('')
 
-    const formData = new FormData(e.target)
-    const otp = formData.get('otp')
+    if (!otpValue || otpValue.length !== 6) {
+      setError('Please enter a valid 6-digit OTP')
+      toast.error("Invalid OTP", {
+        description: 'Please enter a valid 6-digit OTP',
+        duration: 3000,
+      })
+      setLoading(false)
+      return
+    }
 
     try {
       const result = await signIn('credentials', {
         phone,
-        otp,
+        otp: otpValue,
         loginType: 'phone',
         redirect: false
       })
 
       if (result?.error) {
         setError('Invalid OTP or account not approved')
+        toast.error("Login failed", {
+          description: 'Invalid OTP or account not approved',
+          duration: 4000,
+        })
       } else {
         const session = await getSession()
         if (session?.user?.role === 'DOCTOR') {
+          toast.success("Login successful!", {
+            description: 'Welcome back, Doctor! Redirecting to dashboard...',
+            duration: 3000,
+          })
           router.push('/doctor')
         } else if (session?.user?.role === 'PENDING_DOCTOR') {
           setError('Your account is pending admin approval. Please wait for approval.')
+          toast.warning("Account pending approval", {
+            description: 'Your account is pending admin approval. Please wait for approval.',
+            duration: 5000,
+          })
         } else {
           setError('Access denied: Invalid user role')
+          toast.error("Access denied", {
+            description: 'Invalid user role for doctor portal',
+            duration: 4000,
+          })
         }
       }
     } catch (err) {
       setError('Login failed')
+      toast.error("Login failed", {
+        description: 'Something went wrong. Please try again.',
+        duration: 4000,
+      })
     } finally {
       setLoading(false)
     }
@@ -114,12 +163,10 @@ export default function DoctorLoginPage() {
               <form onSubmit={handleSendOTP} className="space-y-4">
                 <div>
                   <Label htmlFor="phone">Registered Phone Number</Label>
-                  <Input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    required
-                    placeholder="+91 9876543210"
+                  <PhoneNumberInput
+                    value={phone}
+                    onChange={setPhone}
+                    placeholder="Enter your registered phone number"
                     className="mt-1"
                   />
                   <p className="text-sm text-gray-500 mt-1">
@@ -145,22 +192,37 @@ export default function DoctorLoginPage() {
             ) : (
               <form onSubmit={handleOTPLogin} className="space-y-4">
                 <div>
-                  <Label htmlFor="otp">Enter OTP</Label>
-                  <Input
-                    id="otp"
-                    name="otp"
-                    type="text"
-                    required
-                    placeholder="123456"
-                    maxLength={6}
-                    className="mt-1 text-center text-lg tracking-widest"
-                  />
-                  <p className="text-sm text-gray-500 mt-1">
-                    OTP sent to {phone}
+                  <Label>Enter OTP sent to {phone}</Label>
+                  <div className="mt-2 flex justify-center">
+                    <InputOTP
+                      maxLength={6}
+                      value={otpValue}
+                      onChange={setOtpValue}
+                      pattern="[0-9]*"
+                      data-input-otp
+                      className="gap-2"
+                      autoComplete="one-time-code"
+                      inputMode="numeric"
+                    >
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} autoComplete="off" />
+                        <InputOTPSlot index={1} autoComplete="off" />
+                        <InputOTPSlot index={2} autoComplete="off" />
+                      </InputOTPGroup>
+                      <InputOTPSeparator />
+                      <InputOTPGroup>
+                        <InputOTPSlot index={3} autoComplete="off" />
+                        <InputOTPSlot index={4} autoComplete="off" />
+                        <InputOTPSlot index={5} autoComplete="off" />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1 text-center">
+                    Please enter the 6-digit OTP
                   </p>
                 </div>
                 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full" disabled={loading || otpValue.length !== 6}>
                   {loading ? 'Verifying...' : 'Verify & Sign In'}
                 </Button>
                 
@@ -173,18 +235,6 @@ export default function DoctorLoginPage() {
                   Change Phone Number
                 </Button>
               </form>
-            )}
-
-            {error && (
-              <Alert variant="destructive" className="mt-4">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            {success && (
-              <Alert className="mt-4">
-                <AlertDescription>{success}</AlertDescription>
-              </Alert>
             )}
 
             <div className="text-center mt-6 pt-4 border-t">
