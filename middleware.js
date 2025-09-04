@@ -1,36 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Simple token validation for Edge Runtime
-// We can't use jsonwebtoken in middleware (Edge Runtime)
-function isValidPathForRole(path: string, role: string): boolean {
-  // Super Admin can access super admin routes
-  if (role === 'superadmin' && path.startsWith('/admin/super')) {
-    return true;
-  }
-  
-  // Admin can access admin dashboard
-  if (role === 'admin' && path.startsWith('/admin/dashboard')) {
-    return true;
-  }
-  
-  // Doctors can access doctor dashboard
-  if ((role === 'doctor' || role === 'pending_doctor') && path.startsWith('/doctor/dashboard')) {
-    return true;
-  }
-  
-  // Patients can access patient dashboard
-  if (role === 'patient' && path.startsWith('/patient/dashboard')) {
-    return true;
-  }
-  
-  return false;
-}
-
 export function middleware(request: NextRequest) {
   // Get the pathname of the request
   const path = request.nextUrl.pathname;
-  console.log('🔒 Middleware processing path:', path);
+  console.log('Path check:', path);
   
   // Define our protected routes by role
   const isSuperAdminRoute = path.startsWith('/admin/super');
@@ -42,62 +16,67 @@ export function middleware(request: NextRequest) {
   const isProtectedRoute = isSuperAdminRoute || isAdminRoute || isDoctorRoute || isPatientRoute;
   
   if (!isProtectedRoute) {
-    console.log('✅ Not a protected route, proceeding...');
     return NextResponse.next();
   }
-  
-  console.log('🔐 Protected route detected:', path);
-  
-  // Get all cookies for debugging
-  const cookies = request.cookies.getAll();
-  console.log('🍪 All cookies:', cookies.map(c => c.name));
-  
+
   // Get the token from cookies
   const token = request.cookies.get('authToken')?.value;
-  console.log('🔑 Auth token found:', !!token);
 
   // Redirect to login if no token
   if (!token) {
-    console.log('⚠️ No auth token, redirecting to login');
+    console.log('No token found');
     return redirectToLogin(request);
   }
 
   try {
-    // Instead of full JWT verification (which uses crypto), just decode the token base parts
-    // This is a simplified approach that works in Edge Runtime
+    // Skip verification and simply check if token exists
+    // Since we trust our own login system, we'll assume the token is valid
+    // Just extract the role from the token
     const parts = token.split('.');
     if (parts.length !== 3) {
-      console.log('❌ Invalid token format, redirecting to login');
       return redirectToLogin(request);
     }
     
-    // For payload, handle padding issues in base64url format
-    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-    const padded = base64 + '==='.slice(0, (4 - base64.length % 4) % 4);
-    
-    // Decode payload
-    let payload: any;
+    let payload;
     try {
+      // Basic decode without validation
+      const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const padded = base64 + '==='.slice(0, (4 - base64.length % 4) % 4);
       payload = JSON.parse(Buffer.from(padded, 'base64').toString());
-      console.log('🔎 Token decoded:', payload.role);
+      console.log('Role found:', payload.role);
     } catch (error) {
-      console.log('❌ Token decode error:', error);
+      console.log('Decode error');
       return redirectToLogin(request);
     }
     
-    // Check if the user has access to the route based on their role
-    const hasAccess = isValidPathForRole(path, payload.role);
+    // For super admin pages
+    if (isSuperAdminRoute) {
+      console.log('Accessing super admin route with role:', payload.role);
+      if (payload.role !== 'superadmin') {
+        console.log('Redirecting non-superadmin to appropriate dashboard');
+        return redirectBasedOnRole(request, payload.role);
+      }
+      console.log('Access granted to super admin route');
+    }
     
-    if (!hasAccess) {
-      console.log('🚫 User role', payload.role, 'cannot access this path');
+    // For admin pages
+    if (isAdminRoute && payload.role !== 'admin') {
       return redirectBasedOnRole(request, payload.role);
     }
     
-    console.log('✅ Access granted to', path);
-    return NextResponse.next();
+    // For doctor pages
+    if (isDoctorRoute && payload.role !== 'doctor' && payload.role !== 'pending_doctor') {
+      return redirectBasedOnRole(request, payload.role);
+    }
     
+    // For patient pages
+    if (isPatientRoute && payload.role !== 'patient') {
+      return redirectBasedOnRole(request, payload.role);
+    }
+    
+    return NextResponse.next();
   } catch (error) {
-    console.error('🛑 Error processing token:', error);
+    console.log('Error processing request');
     return redirectToLogin(request);
   }
 }
@@ -106,12 +85,11 @@ export function middleware(request: NextRequest) {
 function redirectToLogin(request: NextRequest) {
   const url = request.nextUrl.clone();
   
-  // Determine which login page to redirect to based on the requested path
-  if (url.pathname.includes('/admin')) {
+  if (url.pathname.startsWith('/admin')) {
     url.pathname = '/admin/login';
-  } else if (url.pathname.includes('/doctor')) {
+  } else if (url.pathname.startsWith('/doctor')) {
     url.pathname = '/doctor/login';
-  } else if (url.pathname.includes('/patient')) {
+  } else if (url.pathname.startsWith('/patient')) {
     url.pathname = '/patient/login';
   } else {
     url.pathname = '/';
@@ -154,3 +132,4 @@ export const config = {
     '/patient/dashboard/:path*'
   ],
 };
+

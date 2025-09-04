@@ -1,15 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { toast } from 'sonner';
-import { Loader2, CheckCircle, XCircle, User } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, User, LogOut } from 'lucide-react';
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import ProtectedRoute from '@/components/protected-route';
 import Navbar from '@/components/navbar';
 
 export default function AdminDashboard() {
@@ -19,19 +18,32 @@ export default function AdminDashboard() {
   const [rejectedDoctors, setRejectedDoctors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('pending');
+  const [authToken, setAuthToken] = useState('');
 
   useEffect(() => {
-    if (session?.apiToken) {
-      fetchDoctors();
+    // Get auth token from cookies
+    const cookies = document.cookie.split(';');
+    const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('authToken='));
+    if (tokenCookie) {
+      const token = tokenCookie.split('=')[1];
+      setAuthToken(token);
+      fetchDoctors(token);
+    } else if (session?.apiToken) {
+      setAuthToken(session.apiToken);
+      fetchDoctors(session.apiToken);
+    } else {
+      setIsLoading(false);
     }
   }, [session]);
 
-  const fetchDoctors = async () => {
+  const fetchDoctors = async (token) => {
     setIsLoading(true);
     try {
+      console.log('Fetching doctors with token:', token ? token.substring(0, 15) + '...' : 'No token');
+      
       const response = await fetch('/api/admin/doctors', {
         headers: {
-          'Authorization': `Bearer ${session.apiToken}`
+          'Authorization': `Bearer ${token}`
         }
       });
       
@@ -40,14 +52,15 @@ export default function AdminDashboard() {
       }
       
       const data = await response.json();
+      console.log('Doctors data:', data);
       
       // Sort doctors by status
-      setPendingDoctors(data.doctors.filter(doc => doc.status === 'pending') || []);
-      setApprovedDoctors(data.doctors.filter(doc => doc.status === 'approved') || []);
-      setRejectedDoctors(data.doctors.filter(doc => doc.status === 'rejected') || []);
+      setPendingDoctors(data.doctors?.filter(doc => doc.status === 'pending') || []);
+      setApprovedDoctors(data.doctors?.filter(doc => doc.status === 'approved') || []);
+      setRejectedDoctors(data.doctors?.filter(doc => doc.status === 'rejected') || []);
     } catch (error) {
       console.error('Error fetching doctors:', error);
-      toast.error('Failed to fetch doctors');
+      toast.error('Failed to fetch doctors: ' + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +72,7 @@ export default function AdminDashboard() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.apiToken}`
+          'Authorization': `Bearer ${authToken}`
         },
         body: JSON.stringify({ status })
       });
@@ -69,7 +82,7 @@ export default function AdminDashboard() {
       }
       
       toast.success(`Doctor ${status} successfully`);
-      fetchDoctors();
+      fetchDoctors(authToken);
     } catch (error) {
       console.error(`Error ${status} doctor:`, error);
       toast.error(error.message);
@@ -139,52 +152,79 @@ export default function AdminDashboard() {
     );
   };
 
+  const handleLogout = async () => {
+    try {
+      // Clear the auth token cookie
+      document.cookie = "authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      
+      // Sign out from next-auth session
+      await signOut({ redirect: false });
+      
+      toast.success("Logged out successfully");
+      
+      // Redirect to login page
+      window.location.href = "/admin/login";
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Error during logout");
+    }
+  };
+
   return (
-    <ProtectedRoute allowedRoles={['admin']}>
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        
-        <div className="container py-10">
-          <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      
+      <div className="container py-10">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
           
-          <Tabs defaultValue="pending" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-6">
-              <TabsTrigger value="pending">
-                Pending
-                {pendingDoctors.length > 0 && (
-                  <Badge className="ml-2" variant="destructive">{pendingDoctors.length}</Badge>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="approved">Approved</TabsTrigger>
-              <TabsTrigger value="rejected">Rejected</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="pending">
-              <div className="mb-4">
-                <h2 className="text-xl font-semibold">Pending Doctor Registrations</h2>
-                <p className="text-muted-foreground">Review and approve/reject doctor registration requests</p>
-              </div>
-              {renderDoctorList(pendingDoctors, true)}
-            </TabsContent>
-            
-            <TabsContent value="approved">
-              <div className="mb-4">
-                <h2 className="text-xl font-semibold">Approved Doctors</h2>
-                <p className="text-muted-foreground">Doctors who have been approved</p>
-              </div>
-              {renderDoctorList(approvedDoctors)}
-            </TabsContent>
-            
-            <TabsContent value="rejected">
-              <div className="mb-4">
-                <h2 className="text-xl font-semibold">Rejected Doctors</h2>
-                <p className="text-muted-foreground">Doctors who have been rejected</p>
-              </div>
-              {renderDoctorList(rejectedDoctors)}
-            </TabsContent>
-          </Tabs>
+          <Button 
+            onClick={handleLogout} 
+            variant="outline" 
+            className="flex items-center gap-2"
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </Button>
         </div>
+        
+        <Tabs defaultValue="pending" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="mb-6">
+            <TabsTrigger value="pending">
+              Pending
+              {pendingDoctors.length > 0 && (
+                <Badge className="ml-2" variant="destructive">{pendingDoctors.length}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="approved">Approved</TabsTrigger>
+            <TabsTrigger value="rejected">Rejected</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="pending">
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold">Pending Doctor Registrations</h2>
+              <p className="text-muted-foreground">Review and approve/reject doctor registration requests</p>
+            </div>
+            {renderDoctorList(pendingDoctors, true)}
+          </TabsContent>
+          
+          <TabsContent value="approved">
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold">Approved Doctors</h2>
+              <p className="text-muted-foreground">Doctors who have been approved</p>
+            </div>
+            {renderDoctorList(approvedDoctors)}
+          </TabsContent>
+          
+          <TabsContent value="rejected">
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold">Rejected Doctors</h2>
+              <p className="text-muted-foreground">Doctors who have been rejected</p>
+            </div>
+            {renderDoctorList(rejectedDoctors)}
+          </TabsContent>
+        </Tabs>
       </div>
-    </ProtectedRoute>
+    </div>
   );
 }

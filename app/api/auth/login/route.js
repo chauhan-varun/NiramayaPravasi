@@ -105,8 +105,16 @@ export async function POST(req) {
         });
       }
       
+      // For debugging
+      console.log('Generating token for user:', {
+        id: user._id.toString(),
+        role: user.role,
+        env: process.env.NODE_ENV,
+        hasJwtSecret: !!process.env.JWT_SECRET,
+      });
+      
       const token = generateToken({
-        id: user._id,
+        id: user._id.toString(),
         role: user.role
       });
       

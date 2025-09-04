@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PhoneInput } from '@/components/ui/phone-input';
+import { PhoneNumberInput } from '@/components/ui/phone-input';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import Navbar from '@/components/navbar';
 
@@ -273,7 +273,7 @@ export default function PatientRegister() {
                         <FormItem>
                           <FormLabel>Phone Number</FormLabel>
                           <FormControl>
-                            <PhoneInput placeholder="+91 99999 99999" {...field} />
+                            <PhoneNumberInput placeholder="+91 99999 99999" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -325,7 +325,7 @@ export default function PatientRegister() {
                         <FormItem>
                           <FormLabel>Phone Number</FormLabel>
                           <FormControl>
-                            <PhoneInput placeholder="+91 99999 99999" {...field} />
+                            <PhoneNumberInput placeholder="+91 99999 99999" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

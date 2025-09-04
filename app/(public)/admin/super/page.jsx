@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
-import { Loader2, Trash2, PencilLine } from 'lucide-react';
+import { Loader2, Trash2, PencilLine, LogOut } from 'lucide-react';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -180,12 +180,41 @@ export default function SuperAdminDashboard() {
     });
   };
 
+  const handleLogout = async () => {
+    try {
+      // Clear the auth token cookie
+      document.cookie = "authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      
+      // Sign out from next-auth session
+      await signOut({ redirect: false });
+      
+      toast.success("Logged out successfully");
+      
+      // Redirect to login page
+      window.location.href = "/admin/login";
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Error during logout");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       
       <div className="container py-10">
-          <h1 className="text-3xl font-bold mb-8">Super Admin Dashboard</h1>
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold">Super Admin Dashboard</h1>
+            
+            <Button 
+              onClick={handleLogout} 
+              variant="outline" 
+              className="flex items-center gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
+          </div>
           
           <div className="grid gap-6 md:grid-cols-2">
             <Card>

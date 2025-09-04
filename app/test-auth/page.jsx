@@ -9,6 +9,7 @@ export default function TestAuth() {
   const router = useRouter();
   const [tokenInfo, setTokenInfo] = useState(null);
   const [cookies, setCookies] = useState([]);
+  const [debugResponse, setDebugResponse] = useState(null);
   
   useEffect(() => {
     // Get all cookies
@@ -80,6 +81,30 @@ export default function TestAuth() {
   const navigateToDashboard = () => {
     router.push('/admin/super');
   };
+  
+  const verifyToken = async () => {
+    // Get the auth token from cookies
+    const authCookie = cookies.find(c => c.name === 'authToken');
+    if (!authCookie) {
+      setDebugResponse({ success: false, message: 'No authToken cookie found' });
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/debug-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: authCookie.value })
+      });
+      
+      const result = await response.json();
+      setDebugResponse(result);
+      console.log('Token verification result:', result);
+    } catch (error) {
+      console.error('Error verifying token:', error);
+      setDebugResponse({ success: false, message: 'Error verifying token', error: error.message });
+    }
+  };
 
   return (
     <div className="container my-10">
@@ -110,8 +135,25 @@ export default function TestAuth() {
             )}
           </div>
           
-          <div className="flex gap-4">
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Token Verification:</h2>
+            {debugResponse ? (
+              <div className="mb-4">
+                <div className={`p-2 mb-2 rounded ${debugResponse.success ? 'bg-green-100' : 'bg-red-100'}`}>
+                  Status: {debugResponse.success ? '✅ Valid' : '❌ Invalid'}
+                </div>
+                <pre className="bg-gray-100 p-4 rounded overflow-auto max-h-80">
+                  {JSON.stringify(debugResponse, null, 2)}
+                </pre>
+              </div>
+            ) : (
+              <div className="text-gray-500 mb-4">Click 'Verify Token' to check token validity</div>
+            )}
+          </div>
+          
+          <div className="flex gap-4 flex-wrap">
             <Button onClick={testLogin}>Test Login</Button>
+            <Button onClick={verifyToken} variant="secondary">Verify Token</Button>
             <Button onClick={clearCookies} variant="outline">Clear Cookies</Button>
             {tokenInfo && (
               <Button onClick={navigateToDashboard}>Navigate to Dashboard</Button>

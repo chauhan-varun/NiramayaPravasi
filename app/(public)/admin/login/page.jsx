@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -13,54 +14,41 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-// Form validation schema
+// Form validation schema (removed role requirement)
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters long' }),
-  role: z.string()
+  password: z.string().min(6, { message: 'Password must be at least 6 characters long' })
 });
 
 export default function AdminLogin() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('superadmin');
 
   const form = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
-      password: '',
-      role: activeTab
+      password: ''
     }
   });
-
-  const onTabChange = (value) => {
-    setActiveTab(value);
-    form.setValue('role', value);
-  };
 
   const onSubmit = async (data) => {
     setIsLoading(true);
     try {
-      // Direct API login with console logging for debugging
-      console.log('Attempting login with:', { email: data.email, role: data.role });
-      
-      const response = await fetch('/api/auth/login', {
+      // Call API without specifying a role - the backend will detect it
+      const response = await fetch('/api/auth/admin-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           email: data.email,
-          password: data.password,
-          role: data.role
+          password: data.password
         })
       });
       
       const apiResult = await response.json();
-      console.log('API response:', apiResult);
       
       if (!response.ok) {
         toast.error(apiResult.message || 'Login failed');
@@ -68,21 +56,31 @@ export default function AdminLogin() {
       }
       
       if (apiResult.success && apiResult.token) {
-        // Store the JWT token in a cookie - with secure settings
+        // Store the JWT token in a cookie
         const maxAge = 7 * 24 * 60 * 60;
         document.cookie = `authToken=${apiResult.token}; path=/; max-age=${maxAge}; SameSite=Lax`;
         
-        console.log('Token stored in cookie. Redirecting...');
-        // For debugging - log cookies
-        console.log('Cookies:', document.cookie);
+        // Get the user's role from API response
+        const userRole = apiResult.user?.role;
         
-        // Redirect based on role
-        const redirectPath = data.role === 'superadmin' ? '/admin/super' : '/admin/dashboard';
+        // Determine redirect path based on detected role
+        let redirectPath;
+        if (userRole === 'superadmin') {
+          redirectPath = '/admin/super';
+        } else if (userRole === 'admin') {
+          redirectPath = '/admin/dashboard';
+        } else {
+          // If not admin or superadmin, redirect to patient login
+          redirectPath = '/patient/login';
+          toast.error('You do not have admin privileges');
+          return;
+        }
+        
         toast.success('Login successful!');
         
         // Add a slight delay before redirecting
         setTimeout(() => {
-          window.location.href = redirectPath; // Use window.location instead of router
+          window.location.href = redirectPath;
         }, 500);
       } else {
         toast.error('Authentication failed');
@@ -99,7 +97,7 @@ export default function AdminLogin() {
     setIsLoading(true);
     try {
       await signIn('google', {
-        callbackUrl: activeTab === 'superadmin' ? '/admin/super' : '/admin/dashboard'
+        callbackUrl: '/admin/login-redirect' // Redirect to a handler page that will determine role
       });
     } catch (error) {
       console.error('Google login error:', error);
@@ -116,88 +114,42 @@ export default function AdminLogin() {
           <CardDescription>Sign in to your admin account</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="superadmin" value={activeTab} onValueChange={onTabChange}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="superadmin">Super Admin</TabsTrigger>
-              <TabsTrigger value="admin">Admin</TabsTrigger>
-            </TabsList>
-            <TabsContent value="superadmin" className="mt-4">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input placeholder="email@example.com" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : null}
-                    Sign In
-                  </Button>
-                </form>
-              </Form>
-            </TabsContent>
-            <TabsContent value="admin" className="mt-4">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input placeholder="email@example.com" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : null}
-                    Sign In
-                  </Button>
-                </form>
-              </Form>
-            </TabsContent>
-          </Tabs>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="email@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : null}
+                Sign In
+              </Button>
+            </form>
+          </Form>
         </CardContent>
         <CardFooter className="flex flex-col">
           <div className="relative my-3 w-full">
@@ -234,6 +186,11 @@ export default function AdminLogin() {
             )}
             <span className="ml-2">Sign in with Google</span>
           </Button>
+          <div className="mt-4 text-center text-sm">
+            <Link href="/patient/login" className="text-primary hover:underline">
+              Not an admin? Go to patient login
+            </Link>
+          </div>
         </CardFooter>
       </Card>
     </div>
