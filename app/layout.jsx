@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "./phone-input-custom.css";
 import AuthProvider from "@/components/auth-provider";
 import { Toaster } from "@/components/ui/sonner";
 

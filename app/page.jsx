@@ -23,7 +23,7 @@ export default function Home() {
     } else if (role === 'doctor' || role === 'pending_doctor') {
       router.push('/doctor/dashboard');
     } else if (role === 'patient') {
-      router.push('/patient/dashboard');
+      router.push('/dashboard');
     }
   }
 
@@ -59,10 +59,10 @@ export default function Home() {
             </CardContent>
             <CardFooter className="flex gap-2">
               <Button asChild className="w-full">
-                <Link href="/patient/login">Login</Link>
+                <Link href="/login">Login</Link>
               </Button>
               <Button asChild variant="outline" className="w-full">
-                <Link href="/patient/register">Register</Link>
+                <Link href="/register">Register</Link>
               </Button>
             </CardFooter>
           </Card>

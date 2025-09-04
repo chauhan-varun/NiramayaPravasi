@@ -77,7 +77,7 @@ export default function PatientLogin() {
       document.cookie = `authToken=${result.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
       
       toast.success('Login successful!');
-      router.push('/patient/dashboard');
+      router.push('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
       toast.error(error.message || 'Login failed');
@@ -154,7 +154,7 @@ export default function PatientLogin() {
       document.cookie = `authToken=${result.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
       
       toast.success('Login successful!');
-      router.push('/patient/dashboard');
+      router.push('/dashboard');
     } catch (error) {
       console.error('OTP verification error:', error);
       toast.error(error.message || 'OTP verification failed');
@@ -203,7 +203,15 @@ export default function PatientLogin() {
                         <FormItem>
                           <FormLabel>Phone Number</FormLabel>
                           <FormControl>
-                            <PhoneNumberInput placeholder="+91 99999 99999" {...field} />
+                            <div className="phone-input-wrapper rounded-md focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+                              <PhoneNumberInput 
+                                placeholder="9999 999 999" 
+                                {...field} 
+                                international 
+                                defaultCountry="IN"
+                                className="phone-input-enhanced"
+                              />
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -242,7 +250,15 @@ export default function PatientLogin() {
                         <FormItem>
                           <FormLabel>Phone Number</FormLabel>
                           <FormControl>
-                            <PhoneNumberInput placeholder="+91 99999 99999" {...field} />
+                            <div className="phone-input-wrapper rounded-md focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+                              <PhoneNumberInput 
+                                placeholder="9999 999 999" 
+                                {...field} 
+                                international 
+                                defaultCountry="IN"
+                                className="phone-input-enhanced"
+                              />
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -305,7 +321,7 @@ export default function PatientLogin() {
           <CardFooter className="flex justify-center">
             <div className="text-center text-sm">
               Don't have an account?{' '}
-              <Link href="/patient/register" className="text-primary underline-offset-4 hover:underline">
+              <Link href="/register" className="text-primary underline-offset-4 hover:underline">
                 Register here
               </Link>
             </div>

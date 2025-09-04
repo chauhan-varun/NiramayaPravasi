@@ -5,8 +5,10 @@
     border-radius: calc(var(--radius) - 2px);
     border: 1px solid hsl(var(--border));
     background-color: hsl(var(--background));
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
     overflow: hidden;
+    height: 2.5rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .phone-input-container:focus-within {
@@ -24,13 +26,14 @@
 .phone-input-container .PhoneInputCountry {
     display: flex;
     align-items: center;
-    padding: 0 8px;
+    padding: 0 10px;
     border-right: 1px solid hsl(var(--border));
-    background-color: hsl(var(--muted));
-    min-width: 80px;
-    height: 2.5rem;
+    background-color: hsl(var(--muted) / 0.5);
+    min-width: 90px;
+    height: 100%;
     cursor: pointer;
     transition: background-color 0.2s;
+    justify-content: space-between;
 }
 
 .phone-input-container .PhoneInputCountry:hover {
@@ -38,11 +41,12 @@
 }
 
 .phone-input-container .PhoneInputCountryIcon {
-    width: 20px;
-    height: 15px;
-    margin-right: 6px;
-    border-radius: 2px;
+    width: 24px;
+    height: 18px;
+    margin-right: 8px;
+    border-radius: 3px;
     object-fit: cover;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .phone-input-container .PhoneInputCountrySelect {
@@ -58,11 +62,12 @@
 }
 
 .phone-input-container .PhoneInputCountrySelectArrow {
-    width: 12px;
-    height: 12px;
-    margin-left: 4px;
-    opacity: 0.5;
+    width: 10px;
+    height: 10px;
+    margin-left: 6px;
+    opacity: 0.6;
     transition: transform 0.2s;
+    color: hsl(var(--muted-foreground));
 }
 
 .phone-input-container .PhoneInputCountry:hover .PhoneInputCountrySelectArrow {
@@ -76,10 +81,12 @@
     outline: none;
     background: transparent;
     color: hsl(var(--foreground));
-    font-size: 0.875rem;
-    padding: 0 12px;
-    height: 2.5rem;
+    font-size: 0.9375rem;
+    padding: 0 14px;
+    height: 100%;
     line-height: 1.25rem;
+    letter-spacing: 0.01em;
+    font-weight: 400;
 }
 
 .phone-input-container .PhoneInputInput::placeholder {
@@ -151,8 +158,34 @@
 }
 
 /* Dark mode support */
+[data-theme="dark"] .phone-input-container,
+.dark .phone-input-container {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .phone-input-container .PhoneInputCountryIcon,
+.dark .phone-input-container .PhoneInputCountryIcon {
+    filter: brightness(0.9);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .phone-input-container .PhoneInputCountry,
+.dark .phone-input-container .PhoneInputCountry {
+    background-color: hsl(var(--muted) / 0.3);
+}
+
+/* Media query for dark mode preference */
 @media (prefers-color-scheme: dark) {
+    .phone-input-container {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
     .phone-input-container .PhoneInputCountryIcon {
         filter: brightness(0.9);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .phone-input-container .PhoneInputCountry {
+        background-color: hsl(var(--muted) / 0.3);
     }
 }

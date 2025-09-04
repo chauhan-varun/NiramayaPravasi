@@ -2,11 +2,12 @@
 
 import React from 'react'
 import PhoneInput from 'react-phone-number-input'
+import flags from 'react-phone-number-input/flags'
 import 'react-phone-number-input/style.css'
 import './phone-input.css'
 import { cn } from '@/lib/utils'
 
-const PhoneNumberInput = React.forwardRef(({ className, value, onChange, placeholder, error, size = "default", ...props }, ref) => {
+const PhoneNumberInput = React.forwardRef(({ className, value, onChange, placeholder, error, size = "default", disabled = false, ...props }, ref) => {
   return (
     <PhoneInput
       ref={ref}
@@ -16,18 +17,24 @@ const PhoneNumberInput = React.forwardRef(({ className, value, onChange, placeho
       defaultCountry="IN"
       international
       countryCallingCodeEditable={false}
+      flags={flags}
+      disabled={disabled}
       className={cn(
         "phone-input-container",
         size === "sm" && "sm",
         size === "lg" && "lg",
         error && "error",
+        disabled && "disabled",
         className
       )}
       numberInputProps={{
-        className: "phone-number-input"
+        className: "phone-number-input",
+        disabled: disabled
       }}
       countrySelectProps={{
-        className: "country-select"
+        className: "country-select",
+        disabled: disabled,
+        "aria-label": "Select country"
       }}
       {...props}
     />

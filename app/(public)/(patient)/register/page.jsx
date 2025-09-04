@@ -102,7 +102,7 @@ export default function PatientRegister() {
       // Store the token in a cookie or local storage
       document.cookie = `authToken=${loginResult.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
       
-      router.push('/patient/dashboard');
+      router.push('/dashboard');
     } catch (error) {
       console.error('Registration error:', error);
       toast.error(error.message || 'Registration failed');
@@ -224,7 +224,7 @@ export default function PatientRegister() {
       // Store the token in a cookie
       document.cookie = `authToken=${result.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
       
-      router.push('/patient/dashboard');
+      router.push('/dashboard');
     } catch (error) {
       console.error('OTP verification error:', error);
       toast.error(error.message || 'OTP verification failed');
@@ -388,7 +388,7 @@ export default function PatientRegister() {
           <CardFooter className="flex justify-center">
             <div className="text-center text-sm">
               Already have an account?{' '}
-              <Link href="/patient/login" className="text-primary underline-offset-4 hover:underline">
+              <Link href="/login" className="text-primary underline-offset-4 hover:underline">
                 Login here
               </Link>
             </div>
