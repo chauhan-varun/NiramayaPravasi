@@ -20,17 +20,17 @@ export default function Navbar() {
   // If not logged in, show limited navigation
   if (!userRole) {
     return (
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
+      <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground backdrop-blur">
         <div className="container flex h-14 items-center justify-between">
           <Link href="/" className="font-bold text-xl">Nirmaya Pravasi</Link>
           <nav className="flex items-center gap-6">
-            <Link href="/admin/login" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/admin/login') ? 'text-primary' : 'text-muted-foreground'}`}>
+            <Link href="/admin/login" className={`text-sm font-medium transition-colors hover:text-white ${isActive('/admin/login') ? 'text-white font-bold' : 'text-primary-foreground/80'}`}>
               Admin Login
             </Link>
-            <Link href="/doctor/login" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/doctor/login') ? 'text-primary' : 'text-muted-foreground'}`}>
+            <Link href="/doctor/login" className={`text-sm font-medium transition-colors hover:text-white ${isActive('/doctor/login') ? 'text-white font-bold' : 'text-primary-foreground/80'}`}>
               Doctor Login
             </Link>
-            <Link href="/login" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/login') ? 'text-primary' : 'text-muted-foreground'}`}>
+            <Link href="/login" className={`text-sm font-medium transition-colors hover:text-white ${isActive('/login') ? 'text-white font-bold' : 'text-primary-foreground/80'}`}>
               Patient Login
             </Link>
           </nav>
@@ -42,20 +42,20 @@ export default function Navbar() {
   // Super Admin Navigation
   if (userRole === 'superadmin') {
     return (
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
+      <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground backdrop-blur">
         <div className="container flex h-14 items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/admin/super" className="font-bold text-xl">Nirmaya Pravasi</Link>
             <span className="rounded bg-primary px-2 py-1 text-xs font-medium text-primary-foreground">Super Admin</span>
           </div>
           <nav className="flex items-center gap-6">
-            <Link href="/admin/super" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/admin/super') ? 'text-primary' : 'text-muted-foreground'}`}>
+            <Link href="/admin/super" className={`text-sm font-medium transition-colors hover:text-white ${isActive('/admin/super') ? 'text-white font-bold' : 'text-primary-foreground/80'}`}>
               Dashboard
             </Link>
-            <Link href="/admin/super/admins" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/admin/super/admins') ? 'text-primary' : 'text-muted-foreground'}`}>
+            <Link href="/admin/super/admins" className={`text-sm font-medium transition-colors hover:text-white ${isActive('/admin/super/admins') ? 'text-white font-bold' : 'text-primary-foreground/80'}`}>
               Manage Admins
             </Link>
-            <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-2">
+            <Button variant="outline" size="sm" onClick={handleSignOut} className="gap-2 bg-transparent border-white text-white hover:bg-white hover:text-primary">
               <LogOut className="h-4 w-4" />
               <span>Sign out</span>
             </Button>
@@ -68,20 +68,20 @@ export default function Navbar() {
   // Admin Navigation
   if (userRole === 'admin') {
     return (
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
+      <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground backdrop-blur">
         <div className="container flex h-14 items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/admin/dashboard" className="font-bold text-xl">Nirmaya Pravasi</Link>
             <span className="rounded bg-primary px-2 py-1 text-xs font-medium text-primary-foreground">Admin</span>
           </div>
           <nav className="flex items-center gap-6">
-            <Link href="/admin/dashboard" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/admin/dashboard') ? 'text-primary' : 'text-muted-foreground'}`}>
+            <Link href="/admin/dashboard" className={`text-sm font-medium transition-colors hover:text-white ${isActive('/admin/dashboard') ? 'text-white font-bold' : 'text-primary-foreground/80'}`}>
               Dashboard
             </Link>
-            <Link href="/admin/doctors" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/admin/doctors') ? 'text-primary' : 'text-muted-foreground'}`}>
+            <Link href="/admin/doctors" className={`text-sm font-medium transition-colors hover:text-white ${isActive('/admin/doctors') ? 'text-white font-bold' : 'text-primary-foreground/80'}`}>
               Manage Doctors
             </Link>
-            <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-2">
+            <Button variant="outline" size="sm" onClick={handleSignOut} className="gap-2 bg-transparent border-white text-white hover:bg-white hover:text-primary">
               <LogOut className="h-4 w-4" />
               <span>Sign out</span>
             </Button>
@@ -94,20 +94,20 @@ export default function Navbar() {
   // Doctor Navigation
   if (userRole === 'doctor') {
     return (
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
+      <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground backdrop-blur">
         <div className="container flex h-14 items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/doctor/dashboard" className="font-bold text-xl">Nirmaya Pravasi</Link>
             <span className="rounded bg-primary px-2 py-1 text-xs font-medium text-primary-foreground">Doctor</span>
           </div>
           <nav className="flex items-center gap-6">
-            <Link href="/doctor/dashboard" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/doctor/dashboard') ? 'text-primary' : 'text-muted-foreground'}`}>
+            <Link href="/doctor/dashboard" className={`text-sm font-medium transition-colors hover:text-white ${isActive('/doctor/dashboard') ? 'text-white font-bold' : 'text-primary-foreground/80'}`}>
               Dashboard
             </Link>
-            <Link href="/doctor/profile" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/doctor/profile') ? 'text-primary' : 'text-muted-foreground'}`}>
+            <Link href="/doctor/profile" className={`text-sm font-medium transition-colors hover:text-white ${isActive('/doctor/profile') ? 'text-white font-bold' : 'text-primary-foreground/80'}`}>
               Profile
             </Link>
-            <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-2">
+            <Button variant="outline" size="sm" onClick={handleSignOut} className="gap-2 bg-transparent border-white text-white hover:bg-white hover:text-primary">
               <LogOut className="h-4 w-4" />
               <span>Sign out</span>
             </Button>
@@ -120,20 +120,20 @@ export default function Navbar() {
   // Patient Navigation
   if (userRole === 'patient') {
     return (
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
+      <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground backdrop-blur">
         <div className="container flex h-14 items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="font-bold text-xl">Nirmaya Pravasi</Link>
             <span className="rounded bg-primary px-2 py-1 text-xs font-medium text-primary-foreground">Patient</span>
           </div>
           <nav className="flex items-center gap-6">
-            <Link href="/dashboard" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/dashboard') ? 'text-primary' : 'text-muted-foreground'}`}>
+            <Link href="/dashboard" className={`text-sm font-medium transition-colors hover:text-white ${isActive('/dashboard') ? 'text-white font-bold' : 'text-primary-foreground/80'}`}>
               Dashboard
             </Link>
-            <Link href="/profile" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/profile') ? 'text-primary' : 'text-muted-foreground'}`}>
+            <Link href="/profile" className={`text-sm font-medium transition-colors hover:text-white ${isActive('/profile') ? 'text-white font-bold' : 'text-primary-foreground/80'}`}>
               Profile
             </Link>
-            <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-2">
+            <Button variant="outline" size="sm" onClick={handleSignOut} className="gap-2 bg-transparent border-white text-white hover:bg-white hover:text-primary">
               <LogOut className="h-4 w-4" />
               <span>Sign out</span>
             </Button>
