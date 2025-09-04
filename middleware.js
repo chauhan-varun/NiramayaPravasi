@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function middleware(request) {
   // Get the pathname of the request
   const path = request.nextUrl.pathname;
   console.log('Path check:', path);
@@ -65,8 +64,24 @@ export function middleware(request: NextRequest) {
     }
     
     // For doctor pages
-    if (isDoctorRoute && payload.role !== 'doctor' && payload.role !== 'pending_doctor') {
-      return redirectBasedOnRole(request, payload.role);
+    if (isDoctorRoute) {
+      if (payload.role !== 'doctor') {
+        // If not a doctor, redirect based on role
+        return redirectBasedOnRole(request, payload.role);
+      }
+      
+      // Check doctor status if available
+      if (payload.status && payload.status !== 'approved') {
+        // Redirect to appropriate status page
+        const url = request.nextUrl.clone();
+        if (payload.status === 'pending') {
+          url.pathname = '/doctor/pending';
+          return NextResponse.redirect(url);
+        } else if (payload.status === 'rejected') {
+          url.pathname = '/doctor/rejected';
+          return NextResponse.redirect(url);
+        }
+      }
     }
     
     // For patient pages
@@ -82,7 +97,7 @@ export function middleware(request: NextRequest) {
 }
 
 // Helper function to redirect to appropriate login page
-function redirectToLogin(request: NextRequest) {
+function redirectToLogin(request) {
   const url = request.nextUrl.clone();
   
   if (url.pathname.startsWith('/admin')) {
@@ -99,7 +114,7 @@ function redirectToLogin(request: NextRequest) {
 }
 
 // Helper function to redirect based on user's role
-function redirectBasedOnRole(request: NextRequest, role: string) {
+function redirectBasedOnRole(request, role) {
   const url = request.nextUrl.clone();
   
   switch (role) {
@@ -110,8 +125,10 @@ function redirectBasedOnRole(request: NextRequest, role: string) {
       url.pathname = '/admin/dashboard';
       break;
     case 'doctor':
-    case 'pending_doctor':
       url.pathname = '/doctor/dashboard';
+      break;
+    case 'pending_doctor':
+      url.pathname = '/doctor/pending';
       break;
     case 'patient':
       url.pathname = '/patient/dashboard';
@@ -129,7 +146,9 @@ export const config = {
   matcher: [
     '/admin/:path*', 
     '/doctor/dashboard/:path*', 
-    '/patient/dashboard/:path*'
+    '/patient/dashboard/:path*',
+    // Don't add the status pages to the matcher as they should be accessible
+    // even without authentication to show the appropriate messages
   ],
 };
 

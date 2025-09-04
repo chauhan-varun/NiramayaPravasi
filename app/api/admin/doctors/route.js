@@ -3,7 +3,7 @@ import dbConnect from '../../../../lib/db';
 import { requireAdmin } from '../../../../middleware/auth';
 import Doctor from '../../../../models/Doctor';
 
-// List all pending doctors
+// List all doctors
 export async function GET(req) {
   const authResult = await requireAdmin(req);
   if (!authResult.proceed) return authResult;
@@ -13,10 +13,11 @@ export async function GET(req) {
     
     // Get query parameters for filtering
     const { searchParams } = new URL(req.url);
-    const status = searchParams.get('status') || 'pending'; // Default to pending
+    const status = searchParams.get('status');
     
-    // Find doctors based on status filter
-    const doctors = await Doctor.find({ status }).select('-passwordHash');
+    // Find doctors based on status filter, or all doctors if no status is provided
+    const filter = status ? { status } : {};
+    const doctors = await Doctor.find(filter).select('-passwordHash');
     
     return NextResponse.json({
       success: true,

@@ -38,22 +38,35 @@ export default function DoctorLogin() {
   const onSubmit = async (data) => {
     setIsLoading(true);
     try {
-      const result = await signIn('credentials', {
-        redirect: false,
-        email: data.email,
-        password: data.password,
-        role: 'doctor'
+      // Use our custom API endpoint instead of NextAuth credentials
+      const response = await fetch('/api/auth/doctor-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password
+        }),
       });
 
-      if (result?.error) {
-        // Special handling for pending approval status
-        if (result.error.includes('pending approval')) {
+      const result = await response.json();
+
+      if (!result.success) {
+        // Handle different status cases
+        if (result.status === 'pending') {
           setIsPending(true);
           toast.info('Your account is pending admin approval.');
+          setTimeout(() => router.push('/doctor/pending'), 2000);
+        } else if (result.status === 'rejected') {
+          toast.error('Your account has been rejected.');
+          setTimeout(() => router.push('/doctor/rejected'), 2000);
         } else {
-          toast.error(result.error || 'Login failed');
+          toast.error(result.message || 'Login failed');
         }
       } else {
+        // Set auth token cookie
+        document.cookie = `authToken=${result.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
         toast.success('Login successful!');
         router.push('/doctor/dashboard');
       }
@@ -68,8 +81,9 @@ export default function DoctorLogin() {
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
+      // Redirect to our custom redirect page after Google login
       await signIn('google', {
-        callbackUrl: '/doctor/dashboard'
+        callbackUrl: '/doctor/login-redirect'
       });
     } catch (error) {
       console.error('Google login error:', error);

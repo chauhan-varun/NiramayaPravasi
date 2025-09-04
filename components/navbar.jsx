@@ -30,7 +30,7 @@ export default function Navbar() {
             <Link href="/doctor/login" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/doctor/login') ? 'text-primary' : 'text-muted-foreground'}`}>
               Doctor Login
             </Link>
-            <Link href="/patient/login" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/patient/login') ? 'text-primary' : 'text-muted-foreground'}`}>
+            <Link href="/login" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/login') ? 'text-primary' : 'text-muted-foreground'}`}>
               Patient Login
             </Link>
           </nav>
@@ -123,14 +123,14 @@ export default function Navbar() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
         <div className="container flex h-14 items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/patient/dashboard" className="font-bold text-xl">Nirmaya Pravasi</Link>
+            <Link href="/dashboard" className="font-bold text-xl">Nirmaya Pravasi</Link>
             <span className="rounded bg-primary px-2 py-1 text-xs font-medium text-primary-foreground">Patient</span>
           </div>
           <nav className="flex items-center gap-6">
-            <Link href="/patient/dashboard" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/patient/dashboard') ? 'text-primary' : 'text-muted-foreground'}`}>
+            <Link href="/dashboard" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/dashboard') ? 'text-primary' : 'text-muted-foreground'}`}>
               Dashboard
             </Link>
-            <Link href="/patient/profile" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/patient/profile') ? 'text-primary' : 'text-muted-foreground'}`}>
+            <Link href="/profile" className={`text-sm font-medium transition-colors hover:text-primary ${isActive('/profile') ? 'text-primary' : 'text-muted-foreground'}`}>
               Profile
             </Link>
             <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-2">
