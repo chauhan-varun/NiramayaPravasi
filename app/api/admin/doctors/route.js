@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '../../../../lib/db';
-import { requireAdmin } from '../../../../middleware/auth';
+import { requireAdmin } from '../../../../middleware/auth-helpers';
 import Doctor from '../../../../models/Doctor';
 
 // List all doctors
 export async function GET(req) {
-  const authResult = await requireAdmin(req);
-  if (!authResult.proceed) return authResult;
+  // Check admin authentication
+  const authError = await requireAdmin(req);
+  if (authError) return authError;
   
   try {
     await dbConnect();

@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '../../../../../lib/db';
-import { requireSuperAdmin } from '../../../../../middleware/auth';
+import { requireSuperAdmin } from '../../../../../middleware/auth-helpers';
 import { hashPassword } from '../../../../../lib/auth';
 import Admin from '../../../../../models/Admin';
 
 // Get a specific admin
 export async function GET(req, { params }) {
-  const authResult = await requireSuperAdmin(req);
-  if (!authResult.proceed) return authResult;
+  // Check superadmin authentication
+  const authError = await requireSuperAdmin(req);
+  if (authError) return authError;
   
   try {
     await dbConnect();
@@ -31,8 +32,9 @@ export async function GET(req, { params }) {
 
 // Update an admin
 export async function PATCH(req, { params }) {
-  const authResult = await requireSuperAdmin(req);
-  if (!authResult.proceed) return authResult;
+  // Check superadmin authentication
+  const authError = await requireSuperAdmin(req);
+  if (authError) return authError;
   
   try {
     await dbConnect();
@@ -68,8 +70,9 @@ export async function PATCH(req, { params }) {
 
 // Delete an admin
 export async function DELETE(req, { params }) {
-  const authResult = await requireSuperAdmin(req);
-  if (!authResult.proceed) return authResult;
+  // Check superadmin authentication
+  const authError = await requireSuperAdmin(req);
+  if (authError) return authError;
   
   try {
     await dbConnect();

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '../../../../../lib/db';
-import { requireAdmin } from '../../../../../middleware/auth';
+import { requireAdmin } from '../../../../../middleware/auth-helpers';
 import Doctor from '../../../../../models/Doctor';
 
 // Update doctor status (approve/reject)
@@ -10,8 +10,9 @@ export async function PATCH(req, { params }) {
 
 // Also support PUT for the same operation
 export async function PUT(req, { params }) {
-  const authResult = await requireAdmin(req);
-  if (!authResult.proceed) return authResult;
+  // Check admin authentication
+  const authError = await requireAdmin(req);
+  if (authError) return authError;
   
   try {
     await dbConnect();
@@ -56,8 +57,9 @@ export async function PUT(req, { params }) {
 
 // Helper function to handle both PATCH and PUT requests
 async function handleStatusChange(req, params) {
-  const authResult = await requireAdmin(req);
-  if (!authResult.proceed) return authResult;
+  // Check admin authentication
+  const authError = await requireAdmin(req);
+  if (authError) return authError;
   
   try {
     await dbConnect();
@@ -102,8 +104,9 @@ async function handleStatusChange(req, params) {
 
 // Get a specific doctor
 export async function GET(req, { params }) {
-  const authResult = await requireAdmin(req);
-  if (!authResult.proceed) return authResult;
+  // Check admin authentication
+  const authError = await requireAdmin(req);
+  if (authError) return authError;
   
   try {
     await dbConnect();

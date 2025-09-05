@@ -3,17 +3,61 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { LogOut, Calendar, LayoutDashboard, User, FileText, HeadphonesIcon } from 'lucide-react';
+
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
+}
+
+function parseJwt(token) {
+  try {
+    return JSON.parse(atob(token.split('.')[1]));
+  } catch (e) {
+    return null;
+  }
+}
 
 export default function PatientNavbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const router = useRouter();
+  const [customAuth, setCustomAuth] = useState(null);
+
+  useEffect(() => {
+    // Check for custom auth token
+    const token = getCookie('authToken');
+    if (token) {
+      const decoded = parseJwt(token);
+      if (decoded && decoded.exp > Date.now() / 1000) {
+        setCustomAuth({
+          user: {
+            role: decoded.role,
+            id: decoded.id
+          }
+        });
+      }
+    }
+  }, []);
 
   const isActive = (path) => pathname === path || pathname.startsWith(path);
 
   const handleSignOut = async () => {
-    await signOut({ redirect: true, callbackUrl: '/' });
+    // Clear custom auth cookie
+    document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    
+    // Also sign out from NextAuth.js if applicable
+    if (session) {
+      await signOut({ redirect: false });
+    }
+    
+    // Redirect to home
+    router.push('/');
   };
 
   return (

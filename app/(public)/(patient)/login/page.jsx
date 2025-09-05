@@ -76,7 +76,7 @@ export default function PatientLogin() {
       document.cookie = `authToken=${result.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
       
       toast.success('Login successful!');
-      router.push('/dashboard');
+      router.replace('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
       toast.error(error.message || 'Login failed');
@@ -153,7 +153,7 @@ export default function PatientLogin() {
       document.cookie = `authToken=${result.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
       
       toast.success('Login successful!');
-      router.push('/dashboard');
+      router.replace('/dashboard');
     } catch (error) {
       console.error('OTP verification error:', error);
       toast.error(error.message || 'OTP verification failed');

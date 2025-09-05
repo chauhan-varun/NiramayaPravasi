@@ -20,11 +20,12 @@ function parseJwt(token) {
   }
 }
 
-export default function ProtectedRoute({ children, allowedRoles = [] }) {
+export default function PatientProtectedRoute({ children }) {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [customAuth, setCustomAuth] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Check for custom auth token
@@ -40,55 +41,34 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
         });
       }
     }
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
+    if (isLoading) return;
+    
     // Check NextAuth.js session first
-    if (status === 'authenticated') {
-      if (allowedRoles.length === 0 || allowedRoles.includes(session?.user?.role)) {
-        setIsAuthorized(true);
-      } else {
-        // Redirect to appropriate dashboard based on role
-        redirectBasedOnRole(session.user.role);
-      }
+    if (status === 'authenticated' && session?.user?.role === 'patient') {
+      setIsAuthorized(true);
     } 
     // Check custom auth if NextAuth.js is not authenticated
-    else if (customAuth) {
-      if (allowedRoles.length === 0 || allowedRoles.includes(customAuth.user.role)) {
-        setIsAuthorized(true);
-      } else {
-        // Redirect to appropriate dashboard based on role
-        redirectBasedOnRole(customAuth.user.role);
-      }
+    else if (customAuth && customAuth.user.role === 'patient') {
+      setIsAuthorized(true);
     }
-    // If neither NextAuth.js nor custom auth is available
-    else if (status === 'unauthenticated' && !customAuth) {
+    // If neither NextAuth.js nor custom auth is available or user is not a patient
+    else if (status !== 'loading') {
       // Don't redirect from protected routes if there's already an auth process happening
       const isAuthPage = window.location.pathname.includes('login') || 
-                         window.location.pathname.includes('register');
-                         
+                          window.location.pathname.includes('register');
+                          
       if (!isAuthPage) {
-        console.log('No auth found, redirecting to home');
-        router.replace('/');
+        console.log('No valid patient auth found, redirecting to login');
+        router.replace('/login');
       }
     }
-  }, [status, session, customAuth, allowedRoles, router]);
+  }, [status, session, customAuth, router, isLoading]);
 
-  const redirectBasedOnRole = (role) => {
-    if (role === 'superadmin') {
-      router.replace('/admin/super');
-    } else if (role === 'admin') {
-      router.replace('/admin/dashboard');
-    } else if (role === 'doctor') {
-      router.replace('/doctor/dashboard');
-    } else if (role === 'patient') {
-      router.replace('/dashboard');
-    } else {
-      router.replace('/');
-    }
-  };
-
-  if ((status === 'loading' && !customAuth) || (!isAuthorized && status !== 'unauthenticated')) {
+  if (isLoading || (status === 'loading' && !customAuth)) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -98,3 +78,4 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
 
   return isAuthorized ? children : null;
 }
+

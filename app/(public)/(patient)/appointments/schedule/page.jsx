@@ -1,493 +1,229 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { toast } from 'sonner';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import PatientNavbar from '@/components/patient-navbar';
+import PatientProtectedRoute from '@/components/patient-protected-route';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Calendar, Clock, User, Search, MapPin, Phone, CheckCircle } from 'lucide-react';
-import Link from 'next/link';
-import PatientNavbar from '@/components/patient-navbar';
+import { Loader2, Calendar, Clock, ArrowLeft } from 'lucide-react';
+import { format } from 'date-fns';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
-const appointmentSchema = z.object({
-  doctor: z.string().min(1, 'Please select a doctor'),
-  specialty: z.string().min(1, 'Please select a specialty'),
-  date: z.string().min(1, 'Please select a date'),
-  timeSlot: z.string().min(1, 'Please select a time slot'),
-  reason: z.string().min(10, 'Please provide a reason for your visit (at least 10 characters)'),
-  notes: z.string().optional(),
-});
-
-export default function ScheduleAppointmentPage() {
-  const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(1);
-  const [doctors, setDoctors] = useState([]);
-  const [specialties, setSpecialties] = useState([]);
-  const [availableSlots, setAvailableSlots] = useState([]);
-  const [selectedDoctor, setSelectedDoctor] = useState(null);
+export default function ScheduleAppointment() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [availableTimes, setAvailableTimes] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
 
   const form = useForm({
-    resolver: zodResolver(appointmentSchema),
     defaultValues: {
-      doctor: '',
-      specialty: '',
-      date: '',
-      timeSlot: '',
-      reason: '',
-      notes: '',
+      doctorId: '',
+      appointmentDate: '',
+      appointmentTime: ''
     }
   });
 
-  useEffect(() => {
-    // Mock data - replace with actual API calls
-    setSpecialties([
-      { id: 'cardiology', name: 'Cardiology' },
-      { id: 'general', name: 'General Medicine' },
-      { id: 'dermatology', name: 'Dermatology' },
-      { id: 'orthopedics', name: 'Orthopedics' },
-      { id: 'neurology', name: 'Neurology' },
-      { id: 'pediatrics', name: 'Pediatrics' },
-    ]);
+  // Mock doctor data
+  const doctors = [
+    { id: '1', name: 'Dr. Sharma', specialty: 'General Physician' },
+    { id: '2', name: 'Dr. Patel', specialty: 'Dentist' },
+    { id: '3', name: 'Dr. Gupta', specialty: 'Cardiologist' },
+    { id: '4', name: 'Dr. Singh', specialty: 'Orthopedic' },
+  ];
 
-    setDoctors([
-      {
-        id: 'dr-johnson',
-        name: 'Dr. Sarah Johnson',
-        specialty: 'cardiology',
-        rating: 4.8,
-        experience: '15 years',
-        location: 'Heart Care Clinic',
-        phone: '+15551234567',
-        nextAvailable: '2025-09-08',
-        image: null
-      },
-      {
-        id: 'dr-chen',
-        name: 'Dr. Michael Chen',
-        specialty: 'general',
-        rating: 4.9,
-        experience: '12 years',
-        location: 'Primary Care Center',
-        phone: '+15559876543',
-        nextAvailable: '2025-09-09',
-        image: null
-      },
-      {
-        id: 'dr-davis',
-        name: 'Dr. Emily Davis',
-        specialty: 'dermatology',
-        rating: 4.7,
-        experience: '10 years',
-        location: 'Skin Health Clinic',
-        phone: '+15554567890',
-        nextAvailable: '2025-09-10',
-        image: null
-      },
-      {
-        id: 'dr-wilson',
-        name: 'Dr. Robert Wilson',
-        specialty: 'orthopedics',
-        rating: 4.6,
-        experience: '18 years',
-        location: 'Bone & Joint Center',
-        phone: '+15553210987',
-        nextAvailable: '2025-09-11',
-        image: null
-      }
-    ]);
-  }, []);
-
-  const filteredDoctors = doctors.filter(doctor => {
-    const selectedSpecialty = form.watch('specialty');
-    return !selectedSpecialty || doctor.specialty === selectedSpecialty;
-  });
-
-  const generateTimeSlots = (date) => {
-    const slots = [];
-    const startTime = 9; // 9 AM
-    const endTime = 17; // 5 PM
+  const handleDateSelect = (date) => {
+    setSelectedDate(date);
+    form.setValue('appointmentDate', date);
     
-    for (let hour = startTime; hour < endTime; hour++) {
-      slots.push(`${hour}:00`);
-      slots.push(`${hour}:30`);
+    // Generate mock available times based on the selected date
+    // In a real app, this would be fetched from the backend
+    const times = [];
+    const dayOfWeek = date.getDay();
+    
+    // Weekdays have more slots than weekends
+    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+      times.push('9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:00 PM');
+    } else {
+      times.push('10:00 AM', '11:00 AM', '12:00 PM');
     }
     
-    return slots.map(time => {
-      const [hour, minute] = time.split(':');
-      const date = new Date();
-      date.setHours(parseInt(hour), parseInt(minute));
-      const formattedTime = date.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      });
-      return {
-        value: time,
-        label: formattedTime,
-        available: Math.random() > 0.3 // Random availability for demo
-      };
-    });
+    setAvailableTimes(times);
   };
 
   const onSubmit = async (data) => {
-    setLoading(true);
+    setIsLoading(true);
+    
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Convert data to the format expected by the API
+      const formattedData = {
+        doctorId: data.doctorId,
+        appointmentDate: format(data.appointmentDate, 'yyyy-MM-dd'),
+        appointmentTime: data.appointmentTime
+      };
+      
+      // Mock API call - in a real app this would be a fetch call
+      console.log('Scheduling appointment:', formattedData);
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast.success('Appointment scheduled successfully!');
-      setStep(4); // Success step
+      router.push('/appointments');
     } catch (error) {
+      console.error('Error scheduling appointment:', error);
       toast.error('Failed to schedule appointment. Please try again.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const handleDoctorSelect = (doctorId) => {
-    const doctor = doctors.find(d => d.id === doctorId);
-    setSelectedDoctor(doctor);
-    form.setValue('doctor', doctorId);
-    form.setValue('specialty', doctor.specialty);
-    setStep(2);
-  };
-
-  const handleDateSelect = (date) => {
-    form.setValue('date', date);
-    setAvailableSlots(generateTimeSlots(date));
-    setStep(3);
-  };
-
-  const handleTimeSlotSelect = (timeSlot) => {
-    form.setValue('timeSlot', timeSlot);
-  };
-
-  if (step === 4) {
-    return (
+  return (
+    <PatientProtectedRoute>
       <div className="min-h-screen bg-gray-50">
         <PatientNavbar />
         
-        <main className="container mx-auto py-8 px-4">
-          <Card className="max-w-2xl mx-auto">
-            <CardContent className="p-8 text-center">
-              <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="h-8 w-8 text-green-600" />
-              </div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Appointment Scheduled!</h1>
-              <p className="text-gray-600 mb-6">
-                Your appointment has been successfully scheduled. You will receive a confirmation email shortly.
-              </p>
-              
-              <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
-                <h3 className="font-medium text-gray-900 mb-3">Appointment Details</h3>
-                <div className="space-y-2 text-sm text-gray-600">
-                  <div className="flex justify-between">
-                    <span>Doctor:</span>
-                    <span className="font-medium">{selectedDoctor?.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Date:</span>
-                    <span className="font-medium">{form.getValues('date')}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Time:</span>
-                    <span className="font-medium">{form.getValues('timeSlot')}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Location:</span>
-                    <span className="font-medium">{selectedDoctor?.location}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex gap-3 justify-center">
-                <Link href="/appointments">
-                  <Button className="bg-blue-600 hover:bg-blue-700">
-                    View My Appointments
+        <main className="container py-8">
+          <div className="flex items-center gap-4 mb-8">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.back()}
+              className="rounded-full"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold">Schedule Appointment</h1>
+              <p className="text-gray-600">Book a new appointment with a doctor</p>
+            </div>
+          </div>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="doctorId"
+                    rules={{ required: 'Please select a doctor' }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select Doctor</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a doctor" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {doctors.map(doctor => (
+                              <SelectItem key={doctor.id} value={doctor.id}>
+                                {doctor.name} - {doctor.specialty}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="appointmentDate"
+                    rules={{ required: 'Please select a date' }}
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Appointment Date</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
+                              >
+                                <Calendar className="mr-2 h-4 w-4" />
+                                {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <CalendarComponent
+                              mode="single"
+                              selected={field.value}
+                              onSelect={(date) => handleDateSelect(date)}
+                              disabled={(date) => 
+                                date < new Date(new Date().setHours(0, 0, 0, 0)) || 
+                                date > new Date(new Date().setDate(new Date().getDate() + 30))
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="appointmentTime"
+                    rules={{ required: 'Please select a time' }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Appointment Time</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                          disabled={!selectedDate}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a time slot" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {availableTimes.length > 0 ? (
+                              availableTimes.map(time => (
+                                <SelectItem key={time} value={time}>
+                                  {time}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <SelectItem value="none" disabled>
+                                Select a date first
+                              </SelectItem>
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Clock className="mr-2 h-4 w-4" />
+                    )}
+                    Schedule Appointment
                   </Button>
-                </Link>
-                <Link href="/dashboard">
-                  <Button variant="outline">
-                    Back to Dashboard
-                  </Button>
-                </Link>
-              </div>
+                </form>
+              </Form>
             </CardContent>
           </Card>
         </main>
       </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <PatientNavbar />
-      
-      <main className="container mx-auto py-8 px-4">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Schedule Appointment</h1>
-          <p className="text-gray-600">Book your appointment with our healthcare providers</p>
-        </div>
-
-        {/* Progress Steps */}
-        <div className="max-w-4xl mx-auto mb-8">
-          <div className="flex items-center justify-center">
-            {[1, 2, 3].map((stepNumber) => (
-              <div key={stepNumber} className="flex items-center">
-                <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  step >= stepNumber 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-200 text-gray-600'
-                }`}>
-                  {stepNumber}
-                </div>
-                <div className={`ml-2 mr-4 text-sm font-medium ${
-                  step >= stepNumber ? 'text-blue-600' : 'text-gray-500'
-                }`}>
-                  {stepNumber === 1 && 'Select Doctor'}
-                  {stepNumber === 2 && 'Choose Date'}
-                  {stepNumber === 3 && 'Confirm Details'}
-                </div>
-                {stepNumber < 3 && (
-                  <div className={`h-0.5 w-16 ${
-                    step > stepNumber ? 'bg-blue-600' : 'bg-gray-200'
-                  }`} />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Step 1: Select Doctor */}
-        {step === 1 && (
-          <div className="max-w-4xl mx-auto">
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle>Select Specialty & Doctor</CardTitle>
-                <CardDescription>Choose a medical specialty and preferred doctor</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-6">
-                  <Label htmlFor="specialty" className="text-sm font-medium text-gray-700 mb-2 block">
-                    Medical Specialty (Optional)
-                  </Label>
-                  <Select onValueChange={(value) => form.setValue('specialty', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All specialties" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">All specialties</SelectItem>
-                      {specialties.map((specialty) => (
-                        <SelectItem key={specialty.id} value={specialty.id}>
-                          {specialty.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {filteredDoctors.map((doctor) => (
-                    <Card key={doctor.id} className="border border-gray-200 hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleDoctorSelect(doctor.id)}>
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-                            <User className="h-6 w-6 text-blue-600" />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900">{doctor.name}</h3>
-                            <p className="text-sm text-gray-600">{specialties.find(s => s.id === doctor.specialty)?.name}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2 text-sm text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <span className="text-yellow-500">★</span>
-                            <span>{doctor.rating} • {doctor.experience} experience</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
-                            <span>{doctor.location}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
-                            <span>Next available: {doctor.nextAvailable}</span>
-                          </div>
-                        </div>
-                        
-                        <Button className="w-full mt-3 bg-blue-600 hover:bg-blue-700">
-                          Select Doctor
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Step 2: Choose Date */}
-        {step === 2 && (
-          <div className="max-w-2xl mx-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle>Select Date</CardTitle>
-                <CardDescription>Choose your preferred appointment date</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-4">
-                  <Label htmlFor="date" className="text-sm font-medium text-gray-700 mb-2 block">
-                    Appointment Date
-                  </Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    min={new Date().toISOString().split('T')[0]}
-                    onChange={(e) => handleDateSelect(e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-                
-                <div className="flex gap-3">
-                  <Button variant="outline" onClick={() => setStep(1)}>
-                    Back
-                  </Button>
-                  <Button 
-                    onClick={() => setStep(3)} 
-                    disabled={!form.watch('date')}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    Continue
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Step 3: Confirm Details */}
-        {step === 3 && (
-          <div className="max-w-2xl mx-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle>Confirm Appointment Details</CardTitle>
-                <CardDescription>Review and confirm your appointment</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    {/* Time Slot Selection */}
-                    <FormField
-                      control={form.control}
-                      name="timeSlot"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Available Time Slots</FormLabel>
-                          <div className="grid grid-cols-3 gap-2">
-                            {availableSlots.map((slot) => (
-                              <Button
-                                key={slot.value}
-                                type="button"
-                                variant={field.value === slot.value ? "default" : "outline"}
-                                disabled={!slot.available}
-                                onClick={() => handleTimeSlotSelect(slot.value)}
-                                className={`text-sm ${!slot.available ? 'opacity-50' : ''}`}
-                              >
-                                {slot.label}
-                              </Button>
-                            ))}
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="reason"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Reason for Visit</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              {...field} 
-                              placeholder="Please describe the reason for your appointment..."
-                              className="min-h-[100px]"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="notes"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Additional Notes (Optional)</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              {...field} 
-                              placeholder="Any additional information you'd like to share..."
-                              className="min-h-[80px]"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <h3 className="font-medium text-gray-900 mb-3">Appointment Summary</h3>
-                      <div className="space-y-2 text-sm text-gray-600">
-                        <div className="flex justify-between">
-                          <span>Doctor:</span>
-                          <span className="font-medium">{selectedDoctor?.name}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Date:</span>
-                          <span className="font-medium">{form.watch('date')}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Time:</span>
-                          <span className="font-medium">{form.watch('timeSlot')}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Location:</span>
-                          <span className="font-medium">{selectedDoctor?.location}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-3">
-                      <Button type="button" variant="outline" onClick={() => setStep(2)}>
-                        Back
-                      </Button>
-                      <Button 
-                        type="submit" 
-                        disabled={loading}
-                        className="bg-blue-600 hover:bg-blue-700"
-                      >
-                        {loading ? 'Scheduling...' : 'Schedule Appointment'}
-                      </Button>
-                    </div>
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-      </main>
-    </div>
+    </PatientProtectedRoute>
   );
 }

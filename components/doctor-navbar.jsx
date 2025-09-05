@@ -13,7 +13,20 @@ export default function DoctorNavbar() {
   const isActive = (path) => pathname === path || pathname.startsWith(path);
 
   const handleSignOut = async () => {
-    await signOut({ redirect: true, callbackUrl: '/' });
+    // Remove the auth token cookie before redirecting
+    document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    
+    // Then sign out from NextAuth and redirect directly to home page
+    // This helps avoid middleware redirections during sign-out
+    await signOut({ 
+      redirect: true, 
+      callbackUrl: '/'
+    });
+    
+    // For extra safety, force a navigation to home after a brief delay
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 100);
   };
 
   return (

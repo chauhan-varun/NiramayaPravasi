@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PhoneNumberInput } from '@/components/ui/phone-input';
 import { User, Mail, Phone, Calendar, MapPin, Shield, Bell, Save, Edit } from 'lucide-react';
 import PatientNavbar from '@/components/patient-navbar';
+import PatientProtectedRoute from '@/components/patient-protected-route';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -126,8 +127,9 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <PatientNavbar />
+    <PatientProtectedRoute>
+      <div className="min-h-screen bg-gray-50">
+        <PatientNavbar />
       
       <main className="container mx-auto py-8 px-4">
         {/* Header Section */}
@@ -508,5 +510,6 @@ export default function ProfilePage() {
         </div>
       </main>
     </div>
+    </PatientProtectedRoute>
   );
 }

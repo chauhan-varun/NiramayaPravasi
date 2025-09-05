@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '../../../../lib/db';
-import { requireSuperAdmin } from '../../../../middleware/auth';
+import { requireSuperAdmin } from '../../../../middleware/auth-helpers';
 import { hashPassword } from '../../../../lib/auth';
 import Admin from '../../../../models/Admin';
 
 // List all admins
 export async function GET(req) {
-  const authResult = await requireSuperAdmin(req);
-  if (!authResult.proceed) return authResult;
+  // Check superadmin authentication
+  const authError = await requireSuperAdmin(req);
+  if (authError) return authError;
   
   try {
     await dbConnect();
@@ -25,8 +26,9 @@ export async function GET(req) {
 
 // Create a new admin
 export async function POST(req) {
-  const authResult = await requireSuperAdmin(req);
-  if (!authResult.proceed) return authResult;
+  // Check superadmin authentication
+  const authError = await requireSuperAdmin(req);
+  if (authError) return authError;
   
   try {
     await dbConnect();
@@ -50,7 +52,7 @@ export async function POST(req) {
       email,
       passwordHash,
       role: 'admin',
-      createdBy: authResult.superAdmin._id
+      createdBy: req.user.id
     });
     
     return NextResponse.json({
