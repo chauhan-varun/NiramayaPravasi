@@ -1,20 +1,27 @@
 'use client';
 
 import { useState } from 'react';
+import { format } from 'date-fns';
 import PatientNavbar from '@/components/patient-navbar';
 import PatientProtectedRoute from '@/components/patient-protected-route';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
-import { Loader2, MessageSquare, PhoneCall, Mail, Send, Clock } from 'lucide-react';
+import { 
+  Loader2, MessageSquare, PhoneCall, Mail, Send, Clock, Search, 
+  Filter, X, AlertCircle, CheckCircle, HelpCircle, FileText, 
+  Phone, CircleHelp, Heart, User
+} from 'lucide-react';
 
 const contactFormSchema = z.object({
   subject: z.string().min(5, { message: 'Subject must be at least 5 characters' }),
@@ -98,34 +105,146 @@ export default function PatientSupport() {
     }
   };
 
+  const [currentDate] = useState(new Date());
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  
+  // Filter support tickets based on search and status filter
+  const filteredTickets = supportTickets.filter(ticket => {
+    // Status filter
+    if (filterStatus !== 'all' && ticket.status !== filterStatus) return false;
+    
+    // Search filter
+    if (searchQuery) {
+      const searchLower = searchQuery.toLowerCase();
+      return (
+        ticket.subject.toLowerCase().includes(searchLower) ||
+        ticket.id.toLowerCase().includes(searchLower) ||
+        ticket.category.toLowerCase().includes(searchLower) ||
+        ticket.messages.some(msg => msg.message.toLowerCase().includes(searchLower))
+      );
+    }
+    
+    return true;
+  });
+  
+  // Status badge component
+  const StatusBadge = ({ status }) => {
+    if (status === 'open') {
+      return (
+        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 gap-1">
+          <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+          Open
+        </Badge>
+      );
+    } else {
+      return (
+        <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200 gap-1">
+          <CheckCircle className="w-3 h-3" />
+          Closed
+        </Badge>
+      );
+    }
+  };
+  
   return (
     <PatientProtectedRoute>
       <div className="min-h-screen bg-gray-50">
         <PatientNavbar />
         
-        <main className="container py-8">
+        {/* Hero header with gradient background */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white">
+          <div className="container py-8 px-4 sm:px-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold">Support Center</h1>
+                <p className="text-blue-100 mt-1">
+                  {format(currentDate, 'EEEE, MMMM do, yyyy')}
+                </p>
+              </div>
+              
+              <div className="mt-4 sm:mt-0 flex space-x-3">
+                <Button 
+                  variant="outline" 
+                  className="bg-white/10 hover:bg-white/20 text-white border-white/30"
+                  onClick={() => setActiveTab('contact')}
+                >
+                  <PhoneCall className="h-4 w-4 mr-2" />
+                  Contact Us
+                </Button>
+                <Button 
+                  className="bg-white text-blue-600 hover:bg-blue-50"
+                  onClick={() => setActiveTab('tickets')}
+                >
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  View Tickets
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <main className="container py-6 px-4 sm:px-6">
+          {/* Common help topics */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold">Support Center</h1>
-            <p className="text-gray-600">Get help with your healthcare needs</p>
+            <h2 className="text-lg font-semibold mb-4">Common Help Topics</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <Card className="bg-blue-50 border-blue-100 hover:bg-blue-100 transition-colors cursor-pointer">
+                <CardContent className="p-4 text-center">
+                  <div className="bg-white rounded-full p-3 w-12 h-12 mx-auto mb-2 flex items-center justify-center">
+                    <User className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <h3 className="font-medium text-blue-800">Account Help</h3>
+                </CardContent>
+              </Card>
+              <Card className="bg-green-50 border-green-100 hover:bg-green-100 transition-colors cursor-pointer">
+                <CardContent className="p-4 text-center">
+                  <div className="bg-white rounded-full p-3 w-12 h-12 mx-auto mb-2 flex items-center justify-center">
+                    <Calendar className="h-6 w-6 text-green-600" />
+                  </div>
+                  <h3 className="font-medium text-green-800">Booking Issues</h3>
+                </CardContent>
+              </Card>
+              <Card className="bg-purple-50 border-purple-100 hover:bg-purple-100 transition-colors cursor-pointer">
+                <CardContent className="p-4 text-center">
+                  <div className="bg-white rounded-full p-3 w-12 h-12 mx-auto mb-2 flex items-center justify-center">
+                    <FileText className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <h3 className="font-medium text-purple-800">Medical Records</h3>
+                </CardContent>
+              </Card>
+              <Card className="bg-orange-50 border-orange-100 hover:bg-orange-100 transition-colors cursor-pointer">
+                <CardContent className="p-4 text-center">
+                  <div className="bg-white rounded-full p-3 w-12 h-12 mx-auto mb-2 flex items-center justify-center">
+                    <Heart className="h-6 w-6 text-orange-600" />
+                  </div>
+                  <h3 className="font-medium text-orange-800">Emergency Help</h3>
+                </CardContent>
+              </Card>
+            </div>
           </div>
           
           <div className="grid gap-8 md:grid-cols-3">
             <div className="md:col-span-2">
-              <Tabs defaultValue="contact" value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="mb-6">
-                  <TabsTrigger value="contact">Contact Support</TabsTrigger>
-                  <TabsTrigger value="tickets">Support Tickets</TabsTrigger>
+              <Tabs defaultValue="contact" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+                <TabsList className="inline-flex h-10 items-center justify-center rounded-lg bg-white p-1">
+                  <TabsTrigger value="contact" className="rounded-md px-5 py-2">Contact Support</TabsTrigger>
+                  <TabsTrigger value="tickets" className="rounded-md px-5 py-2">Support Tickets</TabsTrigger>
                 </TabsList>
                 
+                {/* Contact form tab */}
                 <TabsContent value="contact">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Send us a message</CardTitle>
+                  <Card className="border-2">
+                    <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100/30 border-b">
+                      <div className="flex items-center gap-2">
+                        <MessageSquare className="h-5 w-5 text-blue-600" />
+                        <CardTitle>Send us a message</CardTitle>
+                      </div>
                       <CardDescription>
                         Our support team will respond to your inquiry as soon as possible.
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pt-6">
                       <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                           <FormField
@@ -135,7 +254,11 @@ export default function PatientSupport() {
                               <FormItem>
                                 <FormLabel>Subject</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="Brief description of your issue" {...field} />
+                                  <Input 
+                                    placeholder="Brief description of your issue" 
+                                    {...field} 
+                                    className="border-2 focus-visible:ring-blue-500"
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -150,7 +273,7 @@ export default function PatientSupport() {
                                 <FormLabel>Category</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="border-2">
                                       <SelectValue placeholder="Select a category" />
                                     </SelectTrigger>
                                   </FormControl>
@@ -176,7 +299,7 @@ export default function PatientSupport() {
                                 <FormControl>
                                   <Textarea 
                                     placeholder="Please describe your issue in detail" 
-                                    className="min-h-32"
+                                    className="min-h-32 border-2 focus-visible:ring-blue-500"
                                     {...field} 
                                   />
                                 </FormControl>
@@ -185,49 +308,144 @@ export default function PatientSupport() {
                             )}
                           />
                           
-                          <Button type="submit" className="w-full" disabled={isLoading}>
-                            {isLoading ? (
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                              <Send className="mr-2 h-4 w-4" />
-                            )}
-                            Send Message
-                          </Button>
+                          <div className="text-xs text-gray-500 flex items-start gap-2">
+                            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0 text-blue-500" />
+                            <p>
+                              Our support team typically responds within 24 hours. For urgent medical concerns,
+                              please call our support line directly at <span className="font-medium">+91 1800 123 4567</span>.
+                            </p>
+                          </div>
                         </form>
                       </Form>
                     </CardContent>
+                    <CardFooter className="bg-gray-50 border-t flex justify-end py-4">
+                      <Button 
+                        onClick={form.handleSubmit(onSubmit)} 
+                        disabled={isLoading}
+                        className="bg-blue-600 hover:bg-blue-700"
+                        size="lg"
+                      >
+                        {isLoading ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Send className="mr-2 h-4 w-4" />
+                        )}
+                        Send Message
+                      </Button>
+                    </CardFooter>
                   </Card>
+                  
+                  {/* FAQ Section */}
+                  <div className="mt-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <CircleHelp className="h-5 w-5 text-blue-600" />
+                      <h2 className="text-lg font-medium">Frequently Asked Questions</h2>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <Card>
+                        <CardContent className="p-4">
+                          <div>
+                            <h3 className="font-medium">How do I reschedule my appointment?</h3>
+                            <p className="text-sm text-gray-600 mt-1">
+                              You can reschedule an appointment through the Appointments page up to 24 hours before your scheduled time without any penalty.
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card>
+                        <CardContent className="p-4">
+                          <div>
+                            <h3 className="font-medium">How can I access my medical records?</h3>
+                            <p className="text-sm text-gray-600 mt-1">
+                              All your medical records are available in the Records section. You can view and download your reports, prescriptions, and other medical documents.
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
                 </TabsContent>
                 
+                {/* Support tickets tab */}
                 <TabsContent value="tickets">
-                  {supportTickets.length > 0 ? (
+                  {/* Search and filter */}
+                  <div className="flex flex-col sm:flex-row gap-4 mb-4 items-start sm:items-center">
+                    <div className="relative flex-1 max-w-md">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input 
+                        type="search" 
+                        placeholder="Search tickets..." 
+                        className="pl-9 pr-4 border-2" 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="flex gap-2 self-start">
+                      <Button
+                        variant={filterStatus === 'all' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setFilterStatus('all')}
+                      >
+                        All
+                      </Button>
+                      <Button
+                        variant={filterStatus === 'open' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setFilterStatus('open')}
+                        className={filterStatus === 'open' ? '' : 'text-green-600'}
+                      >
+                        Open
+                      </Button>
+                      <Button
+                        variant={filterStatus === 'closed' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setFilterStatus('closed')}
+                        className={filterStatus === 'closed' ? '' : 'text-gray-600'}
+                      >
+                        Closed
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {filteredTickets.length > 0 ? (
                     <div className="space-y-4">
-                      {supportTickets.map((ticket) => (
-                        <Card key={ticket.id}>
-                          <CardHeader className="pb-2">
+                      {filteredTickets.map((ticket) => (
+                        <Card key={ticket.id} className="border-2">
+                          <CardHeader className="pb-3 border-b">
                             <div className="flex justify-between items-center">
-                              <CardTitle className="text-lg">{ticket.subject}</CardTitle>
-                              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                ticket.status === 'open' 
-                                  ? 'bg-green-100 text-green-800' 
-                                  : 'bg-gray-100 text-gray-800'
-                              }`}>
-                                {ticket.status === 'open' ? 'Open' : 'Closed'}
-                              </span>
-                            </div>
-                            <CardDescription>
-                              <div className="flex gap-4 text-xs">
-                                <div>ID: {ticket.id}</div>
-                                <div>Category: {ticket.category}</div>
-                                <div className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  <span>Last updated: {ticket.lastUpdated}</span>
+                              <div className="flex items-center gap-2">
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                  ticket.status === 'open' ? 'bg-green-100' : 'bg-gray-100'
+                                }`}>
+                                  {ticket.status === 'open' ? (
+                                    <MessageSquare className="h-5 w-5 text-green-600" />
+                                  ) : (
+                                    <CheckCircle className="h-5 w-5 text-gray-600" />
+                                  )}
+                                </div>
+                                <div>
+                                  <CardTitle className="text-lg">{ticket.subject}</CardTitle>
+                                  <CardDescription>
+                                    <div className="flex items-center gap-3 text-xs">
+                                      <span className="font-medium">ID: {ticket.id}</span>
+                                      <span>{ticket.category}</span>
+                                      <div className="flex items-center gap-1">
+                                        <Clock className="h-3 w-3" />
+                                        <span>Updated: {ticket.lastUpdated}</span>
+                                      </div>
+                                    </div>
+                                  </CardDescription>
                                 </div>
                               </div>
-                            </CardDescription>
+                              <StatusBadge status={ticket.status} />
+                            </div>
                           </CardHeader>
-                          <CardContent>
-                            <div className="space-y-3">
+                          
+                          <CardContent className="py-4">
+                            <div className="space-y-4">
                               {ticket.messages.map((msg, idx) => (
                                 <div 
                                   key={idx} 
@@ -235,105 +453,197 @@ export default function PatientSupport() {
                                     msg.sender === 'You' ? 'justify-end' : 'justify-start'
                                   }`}
                                 >
+                                  {msg.sender !== 'You' && (
+                                    <Avatar className="h-8 w-8">
+                                      <AvatarFallback className="bg-blue-600 text-white text-xs">
+                                        SP
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  )}
+                                  
                                   <div 
-                                    className={`rounded-lg p-3 max-w-[80%] ${
+                                    className={`rounded-lg p-3 max-w-[85%] ${
                                       msg.sender === 'You' 
-                                        ? 'bg-blue-50 text-blue-900' 
-                                        : 'bg-gray-100'
+                                        ? 'bg-blue-50 text-blue-900 rounded-tr-none' 
+                                        : 'bg-gray-100 rounded-tl-none'
                                     }`}
                                   >
                                     <div className="flex justify-between items-center mb-1">
                                       <span className="font-medium text-sm">{msg.sender}</span>
                                       <span className="text-xs text-gray-500">{msg.timestamp}</span>
                                     </div>
-                                    <p>{msg.message}</p>
+                                    <p className="text-sm">{msg.message}</p>
                                   </div>
+                                  
+                                  {msg.sender === 'You' && (
+                                    <Avatar className="h-8 w-8">
+                                      <AvatarFallback className="bg-green-600 text-white text-xs">
+                                        YOU
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  )}
                                 </div>
                               ))}
                             </div>
                             
                             {ticket.status === 'open' && (
-                              <div className="mt-4">
+                              <div className="mt-6">
                                 <div className="relative">
-                                  <Input 
-                                    placeholder="Type a reply..." 
-                                    className="pr-24" 
+                                  <Textarea 
+                                    placeholder="Type your reply here..." 
+                                    className="min-h-20 pr-24 border-2 focus-visible:ring-blue-500" 
                                   />
                                   <Button 
                                     size="sm" 
-                                    className="absolute right-1 top-1 h-8"
+                                    className="absolute right-2 bottom-2"
                                   >
+                                    <Send className="h-4 w-4 mr-1" />
                                     Reply
                                   </Button>
                                 </div>
                               </div>
                             )}
                           </CardContent>
+                          
+                          <CardFooter className="bg-gray-50 border-t py-3 flex justify-between">
+                            <div className="text-xs text-gray-500">
+                              Created on {ticket.createdAt}
+                            </div>
+                            {ticket.status === 'open' ? (
+                              <Button variant="outline" size="sm">
+                                Close Ticket
+                              </Button>
+                            ) : (
+                              <Button variant="outline" size="sm">
+                                Reopen Ticket
+                              </Button>
+                            )}
+                          </CardFooter>
                         </Card>
                       ))}
                     </div>
                   ) : (
-                    <div className="rounded-lg border border-dashed p-8 text-center">
-                      <h3 className="mb-2 text-lg font-medium">No Support Tickets</h3>
-                      <p className="text-gray-500 mb-4">You haven't created any support tickets yet.</p>
-                      <Button onClick={() => setActiveTab('contact')}>
-                        Contact Support
-                      </Button>
+                    <div className="bg-white rounded-lg border-2 border-dashed p-8 text-center">
+                      <div className="inline-flex h-12 w-12 rounded-full bg-blue-100 p-2 mb-3">
+                        <MessageSquare className="h-8 w-8 text-blue-600" />
+                      </div>
+                      <h3 className="text-lg font-medium mb-2">No Support Tickets Found</h3>
+                      <p className="text-gray-500 mb-4 max-w-md mx-auto">
+                        {searchQuery || filterStatus !== 'all' ? 
+                          'No tickets match your search criteria.' : 
+                          'You haven\'t created any support tickets yet.'
+                        }
+                      </p>
+                      <div className="flex justify-center gap-3">
+                        {(searchQuery || filterStatus !== 'all') && (
+                          <Button 
+                            variant="outline"
+                            onClick={() => {
+                              setSearchQuery('');
+                              setFilterStatus('all');
+                            }}
+                          >
+                            Clear Filters
+                          </Button>
+                        )}
+                        <Button 
+                          onClick={() => setActiveTab('contact')}
+                          className="bg-blue-600 hover:bg-blue-700"
+                        >
+                          <MessageSquare className="h-4 w-4 mr-2" />
+                          Contact Support
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </TabsContent>
               </Tabs>
             </div>
             
-            <div>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Contact Information</CardTitle>
+            {/* Support information sidebar */}
+            <div className="space-y-6">
+              <Card className="border-2">
+                <CardHeader className="pb-2 border-b">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <PhoneCall className="h-5 w-5 text-blue-600" />
+                    Contact Information
+                  </CardTitle>
                   <CardDescription>
                     Get in touch with our support team
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-4">
                   <div className="space-y-4">
-                    <div className="flex items-start gap-3">
-                      <div className="bg-blue-100 p-2 rounded-lg">
-                        <PhoneCall className="h-5 w-5 text-blue-600" />
+                    <div className="flex items-start gap-3 pb-3 border-b">
+                      <div className="bg-blue-100 p-2 rounded-full">
+                        <Phone className="h-4 w-4 text-blue-600" />
                       </div>
                       <div>
                         <h3 className="font-medium">Phone Support</h3>
-                        <p className="text-gray-600">+91 1800 123 4567</p>
-                        <p className="text-sm text-gray-500">Monday-Friday: 9 AM - 6 PM</p>
+                        <p className="text-blue-600 font-medium">+91 1800 123 4567</p>
+                        <p className="text-xs text-gray-500 mt-1">Monday-Friday: 9 AM - 6 PM</p>
                       </div>
                     </div>
                     
-                    <div className="flex items-start gap-3">
-                      <div className="bg-blue-100 p-2 rounded-lg">
-                        <Mail className="h-5 w-5 text-blue-600" />
+                    <div className="flex items-start gap-3 pb-3 border-b">
+                      <div className="bg-green-100 p-2 rounded-full">
+                        <Mail className="h-4 w-4 text-green-600" />
                       </div>
                       <div>
                         <h3 className="font-medium">Email Support</h3>
-                        <p className="text-gray-600">support@nirmayapravasi.com</p>
-                        <p className="text-sm text-gray-500">We respond within 24 hours</p>
+                        <p className="text-green-600 font-medium">support@nirmayapravasi.com</p>
+                        <p className="text-xs text-gray-500 mt-1">We respond within 24 hours</p>
                       </div>
                     </div>
                     
                     <div className="flex items-start gap-3">
-                      <div className="bg-blue-100 p-2 rounded-lg">
-                        <MessageSquare className="h-5 w-5 text-blue-600" />
+                      <div className="bg-purple-100 p-2 rounded-full">
+                        <MessageSquare className="h-4 w-4 text-purple-600" />
                       </div>
                       <div>
                         <h3 className="font-medium">Live Chat</h3>
-                        <p className="text-gray-600">Available on our website</p>
-                        <p className="text-sm text-gray-500">24/7 for urgent issues</p>
+                        <p className="text-purple-600 font-medium">Available on our website</p>
+                        <p className="text-xs text-gray-500 mt-1">24/7 for urgent issues</p>
                       </div>
                     </div>
-                    
-                    <div className="pt-4">
-                      <p className="text-sm font-medium">Emergency?</p>
-                      <p className="text-sm text-gray-500">
-                        For medical emergencies, please call our emergency hotline at 
-                        <span className="font-medium text-red-500"> 1800 911 0911</span>
+                  </div>
+                </CardContent>
+                <CardFooter className="bg-red-50 border-t">
+                  <div className="flex items-start gap-2">
+                    <div className="bg-red-100 p-1 rounded-full mt-0.5">
+                      <AlertCircle className="h-4 w-4 text-red-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm text-red-800">Medical Emergency?</p>
+                      <p className="text-xs text-red-700">
+                        Call our emergency hotline at <span className="font-bold">1800 911 0911</span>
                       </p>
+                    </div>
+                  </div>
+                </CardFooter>
+              </Card>
+              
+              {/* Support hours card */}
+              <Card className="border-2">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Support Hours</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-3 text-sm">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>Monday - Friday</span>
+                      <span className="font-medium">9:00 AM - 6:00 PM</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Saturday</span>
+                      <span className="font-medium">10:00 AM - 2:00 PM</span>
+                    </div>
+                    <div className="flex justify-between text-gray-500">
+                      <span>Sunday</span>
+                      <span>Closed</span>
+                    </div>
+                    <div className="pt-2 text-xs text-gray-500">
+                      All times are in Indian Standard Time (IST)
                     </div>
                   </div>
                 </CardContent>
