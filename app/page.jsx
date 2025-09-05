@@ -31,7 +31,7 @@ export default function Home() {
   }, []);
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-blue-50">
+    <div className="min-h-screen bg-white">
       <Navbar />
       
       {/* Hero Section */}
@@ -65,7 +65,7 @@ export default function Home() {
               <div className="flex flex-wrap gap-4">
                 <Button 
                   size="lg" 
-                  className="bg-white text-blue-700 hover:bg-blue-50 transition-all duration-300 hover:scale-105 group"
+                  className="bg-white text-indigo-600 hover:bg-blue-50 transition-all duration-300 hover:scale-105 hover:shadow-lg group font-medium"
                 >
                   Get Started
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -73,7 +73,7 @@ export default function Home() {
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="bg-transparent border-white text-white hover:bg-white/20 transition-all duration-300"
+                  className="bg-transparent border-white text-white hover:bg-white/20 transition-all duration-300 hover:shadow-md"
                 >
                   Learn More
                 </Button>
@@ -82,14 +82,14 @@ export default function Home() {
             
             <div className={`relative transition-all duration-700 delay-300 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
               <div className="relative mx-auto w-full max-w-md">
-                <div className="absolute -top-4 -left-4 w-24 h-24 bg-blue-400 rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-blob"></div>
+                <div className="absolute -top-4 -left-4 w-24 h-24 bg-indigo-400 rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-blob"></div>
                 <div className="absolute -bottom-8 -right-4 w-32 h-32 bg-blue-300 rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-blob animation-delay-2000"></div>
-                <div className="absolute -bottom-4 left-20 w-24 h-24 bg-blue-500 rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-blob animation-delay-4000"></div>
+                <div className="absolute -bottom-4 left-20 w-24 h-24 bg-purple-500 rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-blob animation-delay-4000"></div>
                 
                 <img 
                   src="/healthcare-illustration.png" 
                   alt="Healthcare Illustration" 
-                  className="relative rounded-lg shadow-xl w-full h-auto transition-all duration-500 hover:scale-105"
+                  className="relative rounded-xl shadow-2xl w-full h-auto transition-all duration-500 hover:scale-105 border-4 border-white/30"
                   onError={(e) => {
                     e.target.onerror = null;
                     e.target.src = "https://placehold.co/600x400/EEE/31316A?text=Nirmaya+Pravasi";
@@ -100,7 +100,7 @@ export default function Home() {
           </div>
         </div>
         
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-blue-50 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white to-transparent"></div>
       </section>
       
       {/* Features Section */}
