@@ -47,22 +47,22 @@ export default function AdminLogin() {
           password: data.password
         })
       });
-      
+
       const apiResult = await response.json();
-      
+
       if (!response.ok) {
         toast.error(apiResult.message || 'Login failed');
         return;
       }
-      
+
       if (apiResult.success && apiResult.token) {
         // Store the JWT token in a cookie
         const maxAge = 7 * 24 * 60 * 60;
         document.cookie = `authToken=${apiResult.token}; path=/; max-age=${maxAge}; SameSite=Lax`;
-        
+
         // Get the user's role from API response
         const userRole = apiResult.user?.role;
-        
+
         // Determine redirect path based on detected role
         let redirectPath;
         if (userRole === 'superadmin') {
@@ -71,13 +71,13 @@ export default function AdminLogin() {
           redirectPath = '/admin/dashboard';
         } else {
           // If not admin or superadmin, redirect to patient login
-          redirectPath = '/patient/login';
+          redirectPath = '/login';
           toast.error('You do not have admin privileges');
           return;
         }
-        
+
         toast.success('Login successful!');
-        
+
         // Add a slight delay before redirecting
         setTimeout(() => {
           window.location.href = redirectPath;
@@ -187,7 +187,7 @@ export default function AdminLogin() {
             <span className="ml-2">Sign in with Google</span>
           </Button>
           <div className="mt-4 text-center text-sm">
-            <Link href="/patient/login" className="text-primary hover:underline">
+            <Link href="/login" className="text-primary hover:underline">
               Not an admin? Go to patient login
             </Link>
           </div>

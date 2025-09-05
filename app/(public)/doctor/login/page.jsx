@@ -14,7 +14,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import Navbar from '@/components/navbar';
 
 // Form validation schema
 const loginSchema = z.object({
@@ -94,7 +93,7 @@ export default function DoctorLogin() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+     
       
       <div className="container flex h-screen items-center justify-center">
         <Card className="w-full max-w-md">

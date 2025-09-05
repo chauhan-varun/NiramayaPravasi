@@ -15,7 +15,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import Navbar from '@/components/navbar';
 
 // Form validation schema
 const doctorSchema = z.object({
@@ -80,7 +79,7 @@ export default function DoctorRegister() {
       }
 
       toast.success('Registration successful! Your account is pending approval.');
-      
+
       // Login after successful registration
       const signInResult = await signIn('credentials', {
         redirect: false,
@@ -118,8 +117,7 @@ export default function DoctorRegister() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-      
+
       <div className="container flex h-screen items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
