@@ -16,7 +16,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PhoneNumberInput } from '@/components/ui/phone-input';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
-import Navbar from '@/components/navbar';
 
 // Form validation schemas
 const passwordSchema = z.object({
@@ -177,9 +176,7 @@ export default function PatientLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      
+    <div className="min-h-screen bg-gray-50">
       <div className="container flex h-screen items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">

@@ -8,13 +8,30 @@ import './phone-input.css'
 import { cn } from '@/lib/utils'
 
 const PhoneNumberInput = React.forwardRef(({ className, value, onChange, placeholder, error, size = "default", disabled = false, ...props }, ref) => {
+  // Handle different phone number formats
+  const normalizedValue = React.useMemo(() => {
+    if (!value) return value;
+    // If it's already E164 format, return as is
+    if (typeof value === 'string' && value.match(/^\+\d{10,15}$/)) {
+      return value;
+    }
+    // If it's a formatted string, try to normalize it
+    if (typeof value === 'string') {
+      const digitsOnly = value.replace(/\D/g, '');
+      if (digitsOnly.length >= 10) {
+        return '+1' + digitsOnly.slice(-10);
+      }
+    }
+    return value;
+  }, [value]);
+
   return (
     <PhoneInput
       ref={ref}
-      value={value}
+      value={normalizedValue}
       onChange={onChange}
       placeholder={placeholder || "Enter phone number"}
-      defaultCountry="IN"
+      defaultCountry="US"
       international
       countryCallingCodeEditable={false}
       flags={flags}
