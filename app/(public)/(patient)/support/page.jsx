@@ -17,6 +17,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
+import { motion } from "framer-motion";
+import { Calendar } from 'lucide-react';
 import { 
   Loader2, MessageSquare, PhoneCall, Mail, Send, Clock, Search, 
   Filter, X, AlertCircle, CheckCircle, HelpCircle, FileText, 
