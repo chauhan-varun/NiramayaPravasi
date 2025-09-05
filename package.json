@@ -49,6 +49,7 @@
     "sonner": "^2.0.7",
     "speakeasy": "^2.0.0",
     "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7",
     "twilio": "^5.8.2",
     "util": "^0.12.5",
     "zod": "^4.1.5"

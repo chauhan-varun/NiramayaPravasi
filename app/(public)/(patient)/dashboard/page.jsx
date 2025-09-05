@@ -84,11 +84,11 @@ export default function PatientDashboard() {
         <PatientNavbar />
         
         {/* Hero section with greeting and key stats */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white animate-gradient-x">
           <div className="container py-8 px-4 sm:px-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16 border-2 border-white">
+              <div className="flex items-center gap-4 animate-fadeIn">
+                <Avatar className="h-16 w-16 border-2 border-white hover:scale-110 transition-transform duration-300 hover:shadow-lg">
                   <AvatarFallback className="bg-blue-800 text-white text-xl">
                     {getInitials(patientName)}
                   </AvatarFallback>
@@ -100,12 +100,12 @@ export default function PatientDashboard() {
                   </p>
                 </div>
               </div>
-              <div className="mt-4 sm:mt-0 w-full sm:w-auto">
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 flex flex-col sm:flex-row gap-2 sm:gap-6">
+              <div className="mt-4 sm:mt-0 w-full sm:w-auto animate-slideInRight">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 flex flex-col sm:flex-row gap-2 sm:gap-6 hover:bg-white/20 transition-all duration-300 hover:shadow-lg">
                   <div>
                     <p className="text-xs text-blue-100">Profile</p>
                     <div className="flex items-center gap-2">
-                      <Progress value={profileCompletion} className="w-24 h-2" />
+                      <Progress value={profileCompletion} className="w-24 h-2 animate-pulse" />
                       <span className="text-sm font-medium">{profileCompletion}%</span>
                     </div>
                   </div>
@@ -121,28 +121,40 @@ export default function PatientDashboard() {
         
         <main className="container py-6 px-4 sm:px-6">
           {/* Quick Actions */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 animate-fadeInUp">
             <Link href="/appointments" passHref className="no-underline">
-              <Button variant="outline" className="h-full w-full flex flex-col items-center justify-center gap-2 py-4 rounded-xl border-2 hover:border-blue-500 hover:bg-blue-50">
-                <Calendar className="h-6 w-6 text-blue-500" />
+              <Button 
+                variant="outline" 
+                className="h-full w-full flex flex-col items-center justify-center gap-2 py-4 rounded-xl border-2 hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 hover:shadow-md hover:scale-105 group"
+              >
+                <Calendar className="h-6 w-6 text-blue-500 transition-transform duration-300 group-hover:scale-110" />
                 <span>Schedule<span className="hidden sm:inline"> Appointment</span></span>
               </Button>
             </Link>
             <Link href="/records" passHref className="no-underline">
-              <Button variant="outline" className="h-full w-full flex flex-col items-center justify-center gap-2 py-4 rounded-xl border-2 hover:border-blue-500 hover:bg-blue-50">
-                <FileText className="h-6 w-6 text-blue-500" />
+              <Button 
+                variant="outline" 
+                className="h-full w-full flex flex-col items-center justify-center gap-2 py-4 rounded-xl border-2 hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 hover:shadow-md hover:scale-105 group"
+              >
+                <FileText className="h-6 w-6 text-blue-500 transition-transform duration-300 group-hover:scale-110" />
                 <span>Records</span>
               </Button>
             </Link>
             <Link href="/profile" passHref className="no-underline">
-              <Button variant="outline" className="h-full w-full flex flex-col items-center justify-center gap-2 py-4 rounded-xl border-2 hover:border-blue-500 hover:bg-blue-50">
-                <User className="h-6 w-6 text-blue-500" />
+              <Button 
+                variant="outline" 
+                className="h-full w-full flex flex-col items-center justify-center gap-2 py-4 rounded-xl border-2 hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 hover:shadow-md hover:scale-105 group"
+              >
+                <User className="h-6 w-6 text-blue-500 transition-transform duration-300 group-hover:scale-110" />
                 <span>Profile</span>
               </Button>
             </Link>
             <Link href="/support" passHref className="no-underline">
-              <Button variant="outline" className="h-full w-full flex flex-col items-center justify-center gap-2 py-4 rounded-xl border-2 hover:border-blue-500 hover:bg-blue-50">
-                <HeadphonesIcon className="h-6 w-6 text-blue-500" />
+              <Button 
+                variant="outline" 
+                className="h-full w-full flex flex-col items-center justify-center gap-2 py-4 rounded-xl border-2 hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 hover:shadow-md hover:scale-105 group"
+              >
+                <HeadphonesIcon className="h-6 w-6 text-blue-500 transition-transform duration-300 group-hover:scale-110" />
                 <span>Support</span>
               </Button>
             </Link>
