@@ -29,6 +29,7 @@
     "clsx": "^2.1.1",
     "crypto": "^1.0.1",
     "date-fns": "^4.1.0",
+    "framer-motion": "^12.23.12",
     "input-otp": "^1.4.2",
     "jsonwebtoken": "^9.0.2",
     "libphonenumber-js": "^1.12.15",
