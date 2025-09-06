@@ -12,13 +12,24 @@ import {
   LineChart, 
   Clock, 
   UserCog,
-  Download
+  Download,
+  FileText
 } from 'lucide-react';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from '@/components/ui/badge';
 import ProtectedRoute from '@/components/protected-route';
 import DoctorNavbar from '@/components/doctor-navbar';
 
@@ -27,6 +38,7 @@ export default function DoctorAnalytics() {
   const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  const [timeRange, setTimeRange] = useState('3m');
   
   // Mock data for demonstration
   const stats = {
@@ -40,6 +52,58 @@ export default function DoctorAnalytics() {
     satisfactionRate: 92,
     revenueGrowth: 15,
     patientRetention: 88,
+  };
+  
+  // Mock disease trends data
+  const diseaseTrends = [
+    { disease: "Influenza", cases: 45, trend: "increasing", percentage: 18 },
+    { disease: "Diabetes Type 2", cases: 32, trend: "stable", percentage: 12 },
+    { disease: "Hypertension", cases: 78, trend: "increasing", percentage: 31 },
+    { disease: "Common Cold", cases: 65, trend: "decreasing", percentage: 26 },
+    { disease: "COVID-19", cases: 15, trend: "decreasing", percentage: 6 },
+    { disease: "Asthma", cases: 23, trend: "stable", percentage: 9 },
+    { disease: "Dengue", cases: 12, trend: "increasing", percentage: 5 },
+    { disease: "Malaria", cases: 8, trend: "stable", percentage: 3 },
+    { disease: "Typhoid", cases: 5, trend: "decreasing", percentage: 2 },
+  ];
+  
+  // Disease distribution by demographic
+  const diseaseByDemographic = {
+    "0-17": {
+      "Common Cold": 35,
+      "Asthma": 15,
+      "Influenza": 20,
+      "Dengue": 5,
+      "Others": 25
+    },
+    "18-30": {
+      "Influenza": 28,
+      "COVID-19": 12,
+      "Hypertension": 5,
+      "Diabetes": 3,
+      "Others": 52
+    },
+    "31-45": {
+      "Hypertension": 22,
+      "Diabetes": 15,
+      "Influenza": 18,
+      "COVID-19": 8,
+      "Others": 37
+    },
+    "46-60": {
+      "Hypertension": 35,
+      "Diabetes": 28,
+      "Heart Disease": 12,
+      "Arthritis": 10,
+      "Others": 15
+    },
+    "60+": {
+      "Hypertension": 45,
+      "Diabetes": 30,
+      "Heart Disease": 25,
+      "Arthritis": 20,
+      "Others": 10
+    }
   };
 
   const patientsByGender = [
@@ -175,11 +239,12 @@ export default function DoctorAnalytics() {
               
               {/* Main Content */}
               <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-                <TabsList>
+                <TabsList className="grid grid-cols-5">
                   <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="patients">Patient Analytics</TabsTrigger>
                   <TabsTrigger value="appointments">Appointment Analytics</TabsTrigger>
                   <TabsTrigger value="performance">Performance</TabsTrigger>
+                  <TabsTrigger value="diseases">Disease Trends</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="overview" className="space-y-6">
@@ -467,6 +532,190 @@ export default function DoctorAnalytics() {
                       </CardFooter>
                     </Card>
                   </div>
+                </TabsContent>
+                
+                <TabsContent value="diseases" className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-medium">Disease Prevalence Analytics</h3>
+                    <Select value={timeRange} onValueChange={setTimeRange}>
+                      <SelectTrigger className="w-32">
+                        <SelectValue placeholder="Time Range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1m">Last Month</SelectItem>
+                        <SelectItem value="3m">Last 3 Months</SelectItem>
+                        <SelectItem value="6m">Last 6 Months</SelectItem>
+                        <SelectItem value="1y">Last Year</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Card className="md:col-span-2">
+                      <CardHeader>
+                        <CardTitle>Disease Trends</CardTitle>
+                        <CardDescription>
+                          Common diseases and their prevalence
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="h-96">
+                        <div className="h-full flex flex-col justify-center items-center text-center">
+                          <BarChart3 className="h-16 w-16 text-muted-foreground mb-4" />
+                          <p className="text-sm text-muted-foreground max-w-sm">
+                            Bar chart showing disease prevalence would be rendered here.
+                          </p>
+                          <div className="mt-8 w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {diseaseTrends.slice(0, 6).map((disease, index) => (
+                              <div key={index} className="space-y-2">
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="font-medium">{disease.disease}</span>
+                                  <div className="flex items-center">
+                                    <span>{disease.cases} cases</span>
+                                    {disease.trend === "increasing" && (
+                                      <span className="ml-2 text-red-500">↑</span>
+                                    )}
+                                    {disease.trend === "decreasing" && (
+                                      <span className="ml-2 text-green-500">↓</span>
+                                    )}
+                                  </div>
+                                </div>
+                                <Progress value={disease.percentage} className="h-2" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Top Diseases</CardTitle>
+                        <CardDescription>
+                          Most prevalent conditions
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-6">
+                          {diseaseTrends.slice(0, 5).map((disease, index) => (
+                            <div key={index} className="flex items-center gap-4">
+                              <div className="bg-primary/10 p-2 rounded-full">
+                                <span className="text-primary font-bold">{index + 1}</span>
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="font-medium">{disease.disease}</h4>
+                                <div className="flex items-center text-sm text-muted-foreground">
+                                  <span>{disease.cases} cases</span>
+                                  <span className="mx-1">•</span>
+                                  <span>{disease.percentage}%</span>
+                                </div>
+                              </div>
+                              <Badge
+                                className={
+                                  disease.trend === "increasing"
+                                    ? "bg-red-100 text-red-800"
+                                    : disease.trend === "decreasing"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-yellow-100 text-yellow-800"
+                                }
+                              >
+                                {disease.trend === "increasing"
+                                  ? "↑ Rising"
+                                  : disease.trend === "decreasing"
+                                  ? "↓ Falling"
+                                  : "→ Stable"}
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Disease Distribution by Age Group</CardTitle>
+                      <CardDescription>
+                        How different diseases affect various age demographics
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="h-80">
+                      <div className="h-full flex flex-col justify-center items-center text-center">
+                        <BarChart3 className="h-16 w-16 text-muted-foreground mb-4" />
+                        <p className="text-sm text-muted-foreground max-w-sm mb-4">
+                          Stacked bar chart showing disease distribution by age group would be rendered here.
+                        </p>
+                        
+                        <div className="grid grid-cols-5 gap-2 w-full mt-4 text-xs">
+                          {Object.keys(diseaseByDemographic).map((ageGroup, index) => (
+                            <div key={index} className="text-center">
+                              <div className="font-medium mb-2">{ageGroup}</div>
+                              {Object.entries(diseaseByDemographic[ageGroup])
+                                .sort(([, a], [, b]) => b - a)
+                                .slice(0, 3)
+                                .map(([disease, percentage], i) => (
+                                  <div key={i} className="mb-1">
+                                    {disease}: {percentage}%
+                                  </div>
+                                ))}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                    <CardFooter className="border-t px-6 py-4 flex justify-between">
+                      <p className="text-sm text-muted-foreground">Based on {stats.totalPatients} patient records</p>
+                      <Button variant="outline" size="sm">Download Report</Button>
+                    </CardFooter>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Disease Outbreak Map</CardTitle>
+                      <CardDescription>
+                        Geographical distribution of disease prevalence
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="h-96">
+                      <div className="h-full flex flex-col justify-center items-center text-center">
+                        <FileText className="h-16 w-16 text-muted-foreground mb-4" />
+                        <p className="text-sm text-muted-foreground max-w-sm mb-8">
+                          Heat map showing geographical disease distribution would be rendered here.
+                        </p>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                          <div className="border rounded-lg p-4">
+                            <h4 className="font-medium mb-2">Hot Spot Areas</h4>
+                            <ul className="space-y-1 text-sm">
+                              <li>Mumbai Central - Influenza</li>
+                              <li>Andheri East - Dengue</li>
+                              <li>Bandra West - COVID-19</li>
+                            </ul>
+                          </div>
+                          
+                          <div className="border rounded-lg p-4">
+                            <h4 className="font-medium mb-2">Emerging Concerns</h4>
+                            <ul className="space-y-1 text-sm">
+                              <li>Rise in respiratory conditions</li>
+                              <li>Seasonal allergies (18% increase)</li>
+                              <li>Gastroenteritis cases</li>
+                            </ul>
+                          </div>
+                          
+                          <div className="border rounded-lg p-4">
+                            <h4 className="font-medium mb-2">Recommendations</h4>
+                            <ul className="space-y-1 text-sm">
+                              <li>Influenza vaccination campaign</li>
+                              <li>Dengue awareness in affected areas</li>
+                              <li>Respiratory health screenings</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                    <CardFooter className="border-t px-6 py-4 flex justify-end">
+                      <Button>Contact Public Health Department</Button>
+                    </CardFooter>
+                  </Card>
                 </TabsContent>
               </Tabs>
             </>
