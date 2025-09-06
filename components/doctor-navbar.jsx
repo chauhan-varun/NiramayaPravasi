@@ -19,7 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 export default function DoctorNavbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [doctorName, setDoctorName] = useState("Doctor");
   
@@ -74,10 +74,6 @@ export default function DoctorNavbar() {
     }, 100);
   };
   
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-  
   // Navigation links data for DRY approach
   const navLinks = [
     {
@@ -108,27 +104,53 @@ export default function DoctorNavbar() {
   ];
 
   return (
-    <header className={`sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 transition-all duration-200 ${scrolled ? 'shadow-lg' : 'shadow-sm'}`}>
-      <div className="container px-4 sm:px-6 md:px-8 w-full flex h-16 items-center justify-between">
+    <header className={`sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-sm transition-all duration-300 ${scrolled ? 'shadow-lg' : 'shadow-sm'}`}>
+      <div className="container flex h-16 items-center justify-between px-4">
         {/* Logo and brand */}
-        <div className="flex items-center gap-3">
-          <Link href="/doctor/dashboard" className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          <Link 
+            href="/doctor/dashboard" 
+            className="flex items-center gap-2 hover:scale-105 transition-transform duration-200"
+          >
             <img 
               src="/nirmaya-pravasi-logo.png" 
               alt="Nirmaya Pravasi Logo" 
               className="w-8 h-8 object-contain"
             />
             <div className="flex flex-col">
-              <span className="font-bold text-lg text-primary inline-block">Nirmaya Pravasi</span>
-              <span className="text-xs text-muted-foreground md:hidden">Doctor Portal</span>
+              <span className="font-bold text-lg text-primary">Nirmaya Pravasi</span>
+              <span className="text-xs text-muted-foreground hidden sm:block">Doctor Portal</span>
             </div>
           </Link>
-          <div className="hidden md:flex">
-            <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 animate-pulse">
-              Doctor Portal
-            </span>
-          </div>
+          <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 hidden sm:inline-block animate-pulse">
+            Doctor Portal
+          </span>
         </div>
+        
+        {/* Mobile menu button */}
+        <button 
+          className="md:hidden p-2 rounded-md hover:bg-gray-100 transition-all duration-300 hover:shadow-md"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+        >
+          <div className="w-6 h-6 flex items-center justify-center relative">
+            <span 
+              className={`absolute block h-0.5 bg-gray-600 transform transition-all duration-300 ease-in-out ${
+                mobileMenuOpen ? 'w-5 rotate-45' : 'w-5 -translate-y-1.5'
+              }`}
+            ></span>
+            <span 
+              className={`absolute block h-0.5 bg-gray-600 transform transition-all duration-300 ease-in-out ${
+                mobileMenuOpen ? 'w-0 opacity-0' : 'w-5'
+              }`}
+            ></span>
+            <span 
+              className={`absolute block h-0.5 bg-gray-600 transform transition-all duration-300 ease-in-out ${
+                mobileMenuOpen ? 'w-5 -rotate-45' : 'w-5 translate-y-1.5'
+              }`}
+            ></span>
+          </div>
+        </button>
         
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-1">
@@ -136,21 +158,25 @@ export default function DoctorNavbar() {
             <Link 
               key={link.href}
               href={link.href} 
-              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-primary/10 hover:text-primary ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:scale-105 ${
                 isActive(link.href) 
-                  ? 'text-primary font-semibold bg-primary/5 shadow-sm' 
-                  : 'text-gray-600'
+                  ? 'bg-primary/10 text-primary font-semibold shadow-sm' 
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-primary'
               }`}
             >
-              {link.icon}
+              <span className={`transition-transform duration-300 ${isActive(link.href) ? 'scale-110' : ''}`}>
+                {link.icon}
+              </span>
               {link.label}
             </Link>
           ))}
           
+          <div className="border-l h-8 mx-2"></div>
+          
           {/* User profile and dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="gap-2 ml-2 p-1 px-2">
+              <Button variant="ghost" className="gap-2 p-1 px-2 hover:scale-105 transition-all duration-300">
                 <Avatar className="h-7 w-7">
                   <AvatarImage src={session?.user?.image} />
                   <AvatarFallback className="bg-primary/10 text-primary">
@@ -160,7 +186,7 @@ export default function DoctorNavbar() {
                 <span className="font-medium text-sm">Dr. {doctorName}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-white/95 backdrop-blur-md border shadow-lg animate-in fade-in-80 slide-in-from-top-5 duration-200">
+            <DropdownMenuContent align="end" className="w-56 bg-white/95 backdrop-blur-md border shadow-lg">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
@@ -189,107 +215,75 @@ export default function DoctorNavbar() {
             </DropdownMenuContent>
           </DropdownMenu>
         </nav>
-        
-        {/* Mobile menu button */}
-        <div className="flex md:hidden">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={toggleMobileMenu}
-            aria-label="Toggle menu"
-          >
-            {isMobileMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
-          </Button>
-        </div>
       </div>
       
-      {/* Mobile Navigation Overlay */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/20 z-40 md:hidden animate-in fade-in-0 duration-150" onClick={toggleMobileMenu}>
-          <div 
-            className="absolute right-0 top-16 w-full h-[calc(100vh-4rem)] bg-white/95 backdrop-blur-md shadow-2xl p-6 animate-in slide-in-from-right duration-300"
-            onClick={e => e.stopPropagation()}
+      {/* Mobile menu - slides down from navbar */}
+      <div 
+        className={`md:hidden border-t border-gray-200 bg-white overflow-hidden transition-all duration-300 ease-in-out ${
+          mobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="flex flex-col py-2">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                isActive(link.href)
+                  ? 'bg-primary/10 text-primary font-semibold translate-x-1'
+                  : 'text-gray-600 hover:translate-x-1'
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <span className={`transition-transform duration-300 ${isActive(link.href) ? 'scale-110' : ''}`}>
+                {link.icon}
+              </span>
+              {link.label}
+            </Link>
+          ))}
+          
+          {/* Profile link on mobile */}
+          <Link
+            href="/doctor/profile"
+            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200 ${
+              isActive('/doctor/profile')
+                ? 'bg-primary/10 text-primary font-semibold translate-x-1'
+                : 'text-gray-600 hover:translate-x-1'
+            }`}
+            onClick={() => setMobileMenuOpen(false)}
           >
-            <div className="flex flex-col gap-2 h-full">
-              {/* Close button */}
-              <div className="flex justify-end mb-4">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={toggleMobileMenu}
-                  className="h-8 w-8"
-                >
-                  <X className="h-5 w-5" />
-                </Button>
+            <User className="h-4 w-4" />
+            Profile
+          </Link>
+          
+          <div className="border-t border-gray-200 my-2"></div>
+          
+          {/* User profile section on mobile */}
+          <div className="px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={session?.user?.image} />
+                <AvatarFallback className="bg-primary/10 text-primary text-lg">
+                  {doctorName.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="font-medium">Dr. {doctorName}</div>
+                <div className="text-xs text-gray-500">{session?.user?.email}</div>
               </div>
-              
-              {/* User profile on mobile */}
-              <div className="flex items-center gap-3 pb-4 mb-4 border-b border-gray-200">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={session?.user?.image} />
-                  <AvatarFallback className="bg-primary/10 text-primary text-lg">
-                    {doctorName.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-bold text-base">Dr. {doctorName}</p>
-                  <p className="text-xs text-muted-foreground truncate">{session?.user?.email}</p>
-                </div>
-              </div>
-              
-              {/* Mobile navigation links */}
-              <div className="space-y-1">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={toggleMobileMenu}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base transition-all duration-200 ${
-                      isActive(link.href)
-                        ? 'bg-primary/10 text-primary font-medium shadow-sm'
-                        : 'hover:bg-gray-100 hover:shadow-sm'
-                    }`}
-                  >
-                    {link.icon}
-                    {link.label}
-                  </Link>
-                ))}
-                
-                {/* Profile link on mobile */}
-                <Link
-                  href="/doctor/profile"
-                  onClick={toggleMobileMenu}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base transition-all duration-200 ${
-                    isActive('/doctor/profile')
-                      ? 'bg-primary/10 text-primary font-medium shadow-sm'
-                      : 'hover:bg-gray-100 hover:shadow-sm'
-                  }`}
-                >
-                  <User className="h-4 w-4" />
-                  Profile
-                </Link>
-              </div>
-              
-              {/* Spacer to push sign out to bottom */}
-              <div className="flex-grow" />
-              
-              {/* Sign out button */}
-              <Button
-                variant="destructive"
-                className="mt-6 w-full gap-2 shadow-lg hover:shadow-xl transition-all duration-200"
-                onClick={handleSignOut}
-              >
-                <LogOut className="h-4 w-4" />
-                Sign out
-              </Button>
             </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleSignOut}
+              className="gap-1 border-gray-200 text-gray-600 transition-all duration-300 hover:scale-105"
+            >
+              <LogOut className="h-4 w-4 transition-transform duration-300 hover:rotate-12" />
+              <span>Sign out</span>
+            </Button>
           </div>
         </div>
-      )}
+      </div>
     </header>
   );
 }

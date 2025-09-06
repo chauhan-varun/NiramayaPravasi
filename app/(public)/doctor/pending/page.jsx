@@ -59,7 +59,7 @@ export default function DoctorPendingPage() {
               <CardDescription className="text-base mt-2">
                 Your doctor account application is currently under review
               </CardDescription>
-            </CardHeader>
+          </CardHeader>
             
             <CardContent className="space-y-6">
               <div className="text-center max-w-lg mx-auto">
@@ -132,7 +132,7 @@ export default function DoctorPendingPage() {
                   <div className="flex items-start gap-4">
                     <div className="rounded-full bg-blue-100 p-2.5">
                       <ArrowRight className="h-5 w-5 text-blue-600" />
-                    </div>
+            </div>
                     <div>
                       <h4 className="font-medium text-sm">Access Your Dashboard</h4>
                       <p className="text-sm text-muted-foreground mt-1">
@@ -154,7 +154,7 @@ export default function DoctorPendingPage() {
                   </div>
                 </div>
               </div>
-            </CardContent>
+          </CardContent>
             
             <CardFooter className="flex flex-col sm:flex-row justify-between border-t p-6 gap-4 bg-muted/5">
               <div className="flex items-center gap-3">
@@ -170,10 +170,10 @@ export default function DoctorPendingPage() {
                 </Link>
                 <Link href="/contact" className="w-full sm:w-auto">
                   <Button className="w-full">Contact Support</Button>
-                </Link>
+            </Link>
               </div>
-            </CardFooter>
-          </Card>
+          </CardFooter>
+        </Card>
         </div>
       </div>
     </div>

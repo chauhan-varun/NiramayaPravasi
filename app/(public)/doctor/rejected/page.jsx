@@ -80,7 +80,7 @@ export default function DoctorRejectedPage() {
                   <div className="flex items-start gap-4">
                     <div className="rounded-full bg-blue-100 p-2.5">
                       <Mail className="h-5 w-5 text-blue-600" />
-                    </div>
+            </div>
                     <div>
                       <h4 className="font-medium text-sm">Contact Support</h4>
                       <p className="text-sm text-muted-foreground mt-1">
@@ -116,12 +116,12 @@ export default function DoctorRejectedPage() {
               <div className="flex gap-3 w-full sm:w-auto">
                 <Link href="/" className="w-full sm:w-auto">
                   <Button variant="outline" className="w-full">Return to Home</Button>
-                </Link>
+            </Link>
                 <Link href="/doctor/register" className="w-full sm:w-auto">
                   <Button className="w-full">Apply Again</Button>
-                </Link>
+            </Link>
               </div>
-            </CardFooter>
+          </CardFooter>
         </Card>
         </div>
       </div>

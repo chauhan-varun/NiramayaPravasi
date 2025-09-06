@@ -96,7 +96,7 @@ export default function DoctorDashboard() {
         return <Badge className="bg-gray-100 text-gray-800">{status}</Badge>;
     }
   };
-  
+
   return (
     <ProtectedRoute allowedRoles={['doctor']}>
       <div className="min-h-screen bg-background overflow-x-hidden">
@@ -288,9 +288,9 @@ export default function DoctorDashboard() {
                       <div className="flex items-center justify-between">
                         <div>
                           <CardTitle>Recent Activity</CardTitle>
-                          <CardDescription>
+                      <CardDescription>
                             Patient interactions and updates
-                          </CardDescription>
+                      </CardDescription>
                         </div>
                         <Button variant="ghost" size="sm" className="gap-1" onClick={() => router.push('/doctor/patient')}>
                           <Users className="h-3.5 w-3.5" />
@@ -448,9 +448,9 @@ export default function DoctorDashboard() {
                       <div className="flex items-center justify-between">
                         <div>
                           <CardTitle>Reminders</CardTitle>
-                          <CardDescription>
+                      <CardDescription>
                             Upcoming tasks and follow-ups
-                          </CardDescription>
+                      </CardDescription>
                         </div>
                         <Button 
                           variant="ghost" 
@@ -492,7 +492,7 @@ export default function DoctorDashboard() {
                           <Button size="sm" variant="outline" className="mt-4" onClick={() => router.push('/doctor/reminders')}>
                             Create Reminder
                           </Button>
-                        </div>
+                      </div>
                       )}
                     </CardContent>
                   </Card>
