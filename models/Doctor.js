@@ -21,7 +21,38 @@ const DoctorSchema = new mongoose.Schema({
     enum: ['pending', 'approved', 'rejected'],
     default: 'pending'
   },
-  // Additional doctor fields could be added here (name, specialization, etc.)
+  specialization: {
+    type: String,
+    default: 'General Practitioner'
+  },
+  name: {
+    type: String,
+    default: ''
+  },
+  phone: {
+    type: String,
+    default: ''
+  },
+  address: {
+    type: String,
+    default: ''
+  },
+  bio: {
+    type: String,
+    default: ''
+  },
+  profilePicture: {
+    type: String,
+    default: ''
+  },
+  consultationFees: {
+    type: Number,
+    default: 0
+  },
+  experienceYears: {
+    type: Number,
+    default: 0
+  }
 }, {
   timestamps: true
 });

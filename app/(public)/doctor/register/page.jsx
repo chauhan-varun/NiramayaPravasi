@@ -79,21 +79,11 @@ export default function DoctorRegister() {
       }
 
       toast.success('Registration successful! Your account is pending approval.');
-
-      // Login after successful registration
-      const signInResult = await signIn('credentials', {
-        redirect: false,
-        email: data.email,
-        password: data.password,
-        role: 'pending_doctor'
-      });
-
-      if (signInResult?.error) {
-        console.error('Login after registration failed:', signInResult.error);
-        router.push('/doctor/login');
-      } else {
-        router.push('/doctor/dashboard');
-      }
+      
+      // Redirect to pending page instead of login
+      setTimeout(() => {
+        router.push('/doctor/pending');
+      }, 1500);
     } catch (error) {
       console.error('Registration error:', error);
       toast.error(error.message || 'Registration failed');

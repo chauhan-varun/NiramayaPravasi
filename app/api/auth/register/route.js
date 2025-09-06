@@ -7,7 +7,8 @@ import Patient from '../../../../models/Patient';
 export async function POST(req) {
   try {
     await dbConnect();
-    const { email, phone, password, role } = await req.json();
+    const body = await req.json();
+    const { email, phone, password, role, specialization, name } = body;
     
     // Validate based on role
     if (role === 'doctor' || role === 'pending_doctor') {
@@ -29,7 +30,9 @@ export async function POST(req) {
         email,
         passwordHash,
         role: 'pending_doctor',
-        status: 'pending'
+        status: 'pending',
+        specialization: specialization || 'General Practitioner',
+        name: name || ''
       });
       
       return NextResponse.json({

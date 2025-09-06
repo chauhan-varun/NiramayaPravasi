@@ -11,7 +11,12 @@ export function middleware(request) {
   // Define our protected routes by role
   const isSuperAdminRoute = path.startsWith('/admin/super');
   const isAdminRoute = path.startsWith('/admin/dashboard');
-  const isDoctorRoute = path.startsWith('/doctor/dashboard');
+  const isDoctorRoute = path.startsWith('/doctor/dashboard') ||
+                      path.startsWith('/doctor/appointments') ||
+                      path.startsWith('/doctor/analytics') ||
+                      path.startsWith('/doctor/profile') ||
+                      path.startsWith('/doctor/reminders') ||
+                      path.startsWith('/doctor/patients');
   // Note: Patient routes are under /patient in the directory structure but URLs are direct
   const isPatientRoute = path === '/dashboard' || 
                         path === '/appointments' || 
@@ -41,10 +46,17 @@ export function middleware(request) {
 export const config = {
   matcher: [
     '/admin/:path*', 
+    '/doctor/dashboard',
     '/doctor/dashboard/:path*',
+    '/doctor/appointments',
     '/doctor/appointments/:path*',
+    '/doctor/patients',
     '/doctor/patients/:path*',
+    '/doctor/analytics',
     '/doctor/analytics/:path*',
+    '/doctor/profile',
+    '/doctor/profile/:path*',
+    '/doctor/reminders',
     '/doctor/reminders/:path*',
     '/dashboard',
     '/appointments',
