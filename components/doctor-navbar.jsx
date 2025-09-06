@@ -63,9 +63,9 @@ export default function DoctorNavbar() {
           </Link>
           
           <Link 
-            href="/doctor/patients" 
+            href="/doctor/patient" 
             className={`flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary ${
-              isActive('/doctor/patients') ? 'text-primary font-semibold' : 'text-gray-600'
+              isActive('/doctor/patient') ? 'text-primary font-semibold' : 'text-gray-600'
             }`}
           >
             <Users className="h-4 w-4" />
