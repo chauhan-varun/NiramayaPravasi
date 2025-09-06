@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://niramaya-pravasi.vercel.app/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Disallow admin and private areas
+Disallow: /api/
+Disallow: /admin/
+Disallow: /doctor/
+Disallow: /patient/
+Disallow: /auth/
+Disallow: /_next/
+Disallow: /middleware/
+
+# Allow public pages
+Allow: /about
+Allow: /services
+Allow: /contact
+Allow: /doctor/login
+Allow: /admin/login
+Allow: /patient/login
+Allow: /patient/register
+Allow: /doctor/register
