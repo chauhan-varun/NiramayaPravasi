@@ -11,6 +11,11 @@ import {
   Loader2, 
   ArrowLeft, 
   User,
+  Plus,
+  Phone,
+  Mail,
+  FileText,
+  Shield,
   Save,
   AlertCircle
 } from 'lucide-react';
@@ -122,21 +127,25 @@ export default function AddNewPatient() {
   
   return (
     <ProtectedRoute allowedRoles={['doctor']}>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background bg-gradient-to-b from-muted/30 to-background">
         <DoctorNavbar />
         
-        <main className="container py-10">
+        <main className="container py-10 px-4 md:px-6">
           <header className="mb-8">
             <div className="flex items-center gap-2 mb-4">
               <Button 
                 variant="ghost" 
                 size="icon" 
                 onClick={() => router.back()}
-                className="rounded-full"
+                className="rounded-full hover:bg-muted/50"
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-2">
+                  <Plus className="h-3.5 w-3.5" />
+                  <span>New Registration</span>
+                </div>
                 <h1 className="text-2xl font-bold">Add New Patient</h1>
                 <p className="text-muted-foreground">Create a new patient record</p>
               </div>
@@ -146,12 +155,19 @@ export default function AddNewPatient() {
           <div className="max-w-4xl mx-auto">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Personal Information</CardTitle>
-                    <CardDescription>
-                      Enter the patient's basic personal information
-                    </CardDescription>
+                <Card className="border shadow-sm">
+                  <CardHeader className="border-b bg-muted/5">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-full bg-primary/10">
+                        <User className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <CardTitle>Personal Information</CardTitle>
+                        <CardDescription>
+                          Enter the patient's basic personal information
+                        </CardDescription>
+                      </div>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -160,9 +176,16 @@ export default function AddNewPatient() {
                         name="name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Full Name *</FormLabel>
+                            <FormLabel className="flex items-center gap-2">
+                              <User className="h-3.5 w-3.5 text-muted-foreground" />
+                              <span>Full Name *</span>
+                            </FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter patient's full name" {...field} />
+                              <Input 
+                                placeholder="Enter patient's full name" 
+                                className="border-input bg-muted/5" 
+                                {...field} 
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -174,9 +197,16 @@ export default function AddNewPatient() {
                         name="phone"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Phone Number *</FormLabel>
+                            <FormLabel className="flex items-center gap-2">
+                              <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                              <span>Phone Number *</span>
+                            </FormLabel>
                             <FormControl>
-                              <Input placeholder="+91 XXXXX XXXXX" {...field} />
+                              <Input 
+                                placeholder="+91 XXXXX XXXXX" 
+                                className="border-input bg-muted/5"
+                                {...field} 
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -188,11 +218,19 @@ export default function AddNewPatient() {
                         name="email"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Email Address</FormLabel>
+                            <FormLabel className="flex items-center gap-2">
+                              <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                              <span>Email Address</span>
+                            </FormLabel>
                             <FormControl>
-                              <Input type="email" placeholder="patient@example.com" {...field} />
+                              <Input 
+                                type="email" 
+                                placeholder="patient@example.com" 
+                                className="border-input bg-muted/5"
+                                {...field} 
+                              />
                             </FormControl>
-                            <FormDescription>Optional</FormDescription>
+                            <FormDescription className="text-xs">Optional</FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -308,12 +346,19 @@ export default function AddNewPatient() {
                   </CardContent>
                 </Card>
                 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Emergency Contact</CardTitle>
-                    <CardDescription>
-                      Person to contact in case of emergency
-                    </CardDescription>
+                <Card className="border shadow-sm">
+                  <CardHeader className="border-b bg-muted/5">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-full bg-red-100">
+                        <Phone className="h-4 w-4 text-red-600" />
+                      </div>
+                      <div>
+                        <CardTitle>Emergency Contact</CardTitle>
+                        <CardDescription>
+                          Person to contact in case of emergency
+                        </CardDescription>
+                      </div>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -362,12 +407,19 @@ export default function AddNewPatient() {
                   </CardContent>
                 </Card>
                 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Medical Information</CardTitle>
-                    <CardDescription>
-                      Important health information about the patient
-                    </CardDescription>
+                <Card className="border shadow-sm">
+                  <CardHeader className="border-b bg-muted/5">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-full bg-blue-100">
+                        <FileText className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <CardTitle>Medical Information</CardTitle>
+                        <CardDescription>
+                          Important health information about the patient
+                        </CardDescription>
+                      </div>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <FormField
@@ -444,9 +496,16 @@ export default function AddNewPatient() {
                   </CardContent>
                 </Card>
                 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Consent and Confirmation</CardTitle>
+                <Card className="border shadow-sm">
+                  <CardHeader className="border-b bg-muted/5">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-full bg-green-100">
+                        <Shield className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div>
+                        <CardTitle>Consent and Confirmation</CardTitle>
+                      </div>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <Alert>
@@ -481,21 +540,25 @@ export default function AddNewPatient() {
                       )}
                     />
                   </CardContent>
-                  <CardFooter className="flex justify-between border-t pt-6">
+                  <CardFooter className="flex justify-between border-t pt-6 bg-muted/5">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => router.back()}
+                      className="border-muted-foreground/20"
                     >
                       Cancel
                     </Button>
                     <Button 
                       type="submit" 
                       disabled={isSubmitting}
-                      className="gap-2"
+                      className="gap-2 shadow-sm"
                     >
-                      {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                      <Save className="h-4 w-4 mr-1" />
+                      {isSubmitting ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                      ) : (
+                        <Save className="h-4 w-4 mr-1" />
+                      )}
                       {isSubmitting ? 'Saving...' : 'Save Patient'}
                     </Button>
                   </CardFooter>

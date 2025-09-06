@@ -21,7 +21,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Calendar } from '@/components/ui/calendar';
+import { Calendar } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Popover,
@@ -158,51 +158,56 @@ export default function DoctorAppointments() {
   const getStatusBadge = (status) => {
     switch (status) {
       case 'upcoming':
-        return <Badge className="bg-blue-100 text-blue-800">Upcoming</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800 font-medium">Upcoming</Badge>;
       case 'completed':
-        return <Badge className="bg-green-100 text-green-800">Completed</Badge>;
+        return <Badge className="bg-green-100 text-green-800 font-medium">Completed</Badge>;
       case 'cancelled':
-        return <Badge className="bg-red-100 text-red-800">Cancelled</Badge>;
+        return <Badge className="bg-red-100 text-red-800 font-medium">Cancelled</Badge>;
       default:
-        return <Badge className="bg-gray-100 text-gray-800">{status}</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800 font-medium">{status}</Badge>;
     }
   };
   
   return (
     <ProtectedRoute allowedRoles={['doctor']}>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background bg-gradient-to-b from-muted/30 to-background">
         <DoctorNavbar />
         
-        <main className="container py-10">
+        <main className="container py-10 px-4 md:px-6">
           <header className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-2">
+                <Calendar className="h-3.5 w-3.5" />
+                <span>Schedule</span>
+              </div>
               <h1 className="text-3xl font-bold">Appointments</h1>
               <p className="text-muted-foreground mt-1">Manage your patient appointments</p>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <div className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 gap-2 cursor-pointer">
-                    <CalendarIcon className="h-4 w-4" />
+                  <div className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-card/50 px-4 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 gap-2 cursor-pointer shadow-sm">
+                    <CalendarIcon className="h-4 w-4 text-primary" />
                     <span>{format(date, 'PPP')}</span>
                   </div>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-auto p-0" align="end">
                   <Calendar
                     mode="single"
                     selected={date}
                     onSelect={(newDate) => newDate && setDate(newDate)}
                     initialFocus
+                    className="rounded-md border shadow-sm"
                   />
                 </PopoverContent>
               </Popover>
               
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
+              <Button variant="outline" size="sm" className="h-10 px-4 shadow-sm border-input">
+                <Filter className="h-4 w-4 mr-2 text-primary" />
                 Filter
               </Button>
               
-              <Button className="gap-2">
+              <Button className="gap-2 h-10 px-4 shadow-sm">
                 <Plus className="h-4 w-4" />
                 New Appointment
               </Button>
@@ -218,18 +223,20 @@ export default function DoctorAppointments() {
               {/* Search and Filter Row */}
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    placeholder="Search patients, email or reason..." 
-                    className="pl-10"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      placeholder="Search patients, email or reason..." 
+                      className="pl-10 bg-card/50 border-input shadow-sm"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
                 </div>
                 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Select defaultValue="all">
-                    <SelectTrigger className="w-36">
+                    <SelectTrigger className="w-full md:w-36 bg-card/50 border-input shadow-sm">
                       <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -241,7 +248,7 @@ export default function DoctorAppointments() {
                   </Select>
                   
                   <Select defaultValue="30">
-                    <SelectTrigger className="w-36">
+                    <SelectTrigger className="w-full md:w-36 bg-card/50 border-input shadow-sm">
                       <SelectValue placeholder="Duration" />
                     </SelectTrigger>
                     <SelectContent>
@@ -257,11 +264,28 @@ export default function DoctorAppointments() {
               
               {/* Tab View */}
               <Tabs defaultValue="upcoming" value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-3 lg:w-auto">
-                  <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-                  <TabsTrigger value="completed">Completed</TabsTrigger>
-                  <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
-                </TabsList>
+                <div className="border rounded-lg p-1 bg-muted/20 mb-4">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="upcoming" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                        <span>Upcoming</span>
+                      </div>
+                    </TabsTrigger>
+                    <TabsTrigger value="completed" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                        <span>Completed</span>
+                      </div>
+                    </TabsTrigger>
+                    <TabsTrigger value="cancelled" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-red-500"></div>
+                        <span>Cancelled</span>
+                      </div>
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
                 
                 <TabsContent value="upcoming" className="space-y-4 mt-6">
                   {filteredAppointments.length > 0 ? (
@@ -328,22 +352,29 @@ export default function DoctorAppointments() {
               </Tabs>
               
               {/* Calendar View */}
-              <Card className="mt-8">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle>Weekly Schedule</CardTitle>
+              <Card className="mt-8 border shadow-sm">
+                <CardHeader className="pb-3 border-b bg-muted/10">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-full bg-primary/10">
+                          <Calendar className="h-4 w-4 text-primary" />
+                        </div>
+                        Weekly Schedule
+                      </CardTitle>
+                      <CardDescription className="text-sm mt-1">
+                        {format(weekDays[0], 'MMMM d')} - {format(weekDays[6], 'MMMM d, yyyy')}
+                      </CardDescription>
+                    </div>
                     <div className="flex items-center space-x-2">
-                      <Button variant="outline" size="icon">
+                      <Button variant="outline" size="icon" className="h-8 w-8 border-input shadow-sm">
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="icon">
+                      <Button variant="outline" size="icon" className="h-8 w-8 border-input shadow-sm">
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
-                  <CardDescription>
-                    {format(weekDays[0], 'MMMM d')} - {format(weekDays[6], 'MMMM d, yyyy')}
-                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   {/* Calendar Header */}
@@ -426,17 +457,25 @@ export default function DoctorAppointments() {
 // Helper component for appointment cards
 function AppointmentCard({ appointment, getStatusBadge, router }) {
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden border shadow-sm hover:shadow-md transition-shadow">
       <div className={`h-1 ${
         appointment.status === 'upcoming' ? 'bg-blue-500' :
         appointment.status === 'completed' ? 'bg-green-500' :
         'bg-red-500'
       }`}></div>
-      <CardContent className="p-6">
+      <CardContent className="p-4 md:p-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="bg-primary/10 rounded-full p-3">
-              <User className="h-6 w-6 text-primary" />
+            <div className={`rounded-full p-3 ${
+              appointment.status === 'upcoming' ? 'bg-blue-50' :
+              appointment.status === 'completed' ? 'bg-green-50' :
+              'bg-red-50'
+            }`}>
+              <User className={`h-6 w-6 ${
+                appointment.status === 'upcoming' ? 'text-blue-500' :
+                appointment.status === 'completed' ? 'text-green-500' :
+                'text-red-500'
+              }`} />
             </div>
             <div>
               <h3 className="font-medium">{appointment.patient}</h3>
@@ -445,11 +484,11 @@ function AppointmentCard({ appointment, getStatusBadge, router }) {
           </div>
           
           <div className="flex flex-wrap gap-3 items-center">
-            <div className="flex items-center gap-1.5 text-sm">
+            <div className="flex items-center gap-1.5 text-sm bg-muted/30 px-2 py-1 rounded">
               <CalendarIcon className="h-4 w-4 text-muted-foreground" />
               <span>{format(appointment.date, 'MMM d, yyyy')}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-sm">
+            <div className="flex items-center gap-1.5 text-sm bg-muted/30 px-2 py-1 rounded">
               <Clock className="h-4 w-4 text-muted-foreground" />
               <span>{appointment.time} ({appointment.duration} min)</span>
             </div>
@@ -461,6 +500,7 @@ function AppointmentCard({ appointment, getStatusBadge, router }) {
               variant="outline" 
               size="sm" 
               onClick={() => router.push(`/doctor/appointments/${appointment.id}`)}
+              className="border-input shadow-sm hover:bg-muted/10"
             >
               View Details
             </Button>

@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { signIn } from 'next-auth/react';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Mail, Lock, AlertTriangle, User, Stethoscope } from 'lucide-react';
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -92,28 +92,41 @@ export default function DoctorLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-     
+    <div className="min-h-screen bg-background bg-gradient-to-b from-muted/50 to-background">
+      <div className="absolute top-8 left-8">
+        <Link href="/" className="flex items-center gap-2">
+          <img 
+            src="/nirmaya-pravasi-logo.png" 
+            alt="Nirmaya Pravasi Logo" 
+            className="w-10 h-10 object-contain"
+          />
+          <span className="font-bold text-xl text-primary hidden sm:inline-block">Nirmaya Pravasi</span>
+        </Link>
+      </div>
       
-      <div className="container flex h-screen items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Doctor Login</CardTitle>
-            <CardDescription>Sign in to your doctor account</CardDescription>
+      <div className="container flex min-h-screen items-center justify-center py-20">
+        <Card className="w-full max-w-md border shadow-md overflow-hidden">
+          <div className="h-1 bg-primary"></div>
+          <CardHeader className="text-center space-y-3 pb-2">
+            <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <Stethoscope className="h-8 w-8 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-2xl font-bold">Doctor Login</CardTitle>
+              <CardDescription>Access your medical dashboard</CardDescription>
+            </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             {isPending ? (
-              <div className="rounded-md bg-yellow-50 p-4 mb-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
+              <div className="rounded-md bg-yellow-50 p-4 mb-4 border border-yellow-200">
+                <div className="flex gap-3">
+                  <div className="flex-shrink-0 text-yellow-500">
+                    <AlertTriangle className="h-5 w-5" />
                   </div>
-                  <div className="ml-3">
+                  <div>
                     <h3 className="text-sm font-medium text-yellow-800">Account Pending Approval</h3>
                     <div className="mt-2 text-sm text-yellow-700">
-                      <p>Your account is waiting for admin approval. You'll receive an email once your account is approved.</p>
+                      <p>Your account is waiting for admin review. You'll receive an email once your account is approved.</p>
                     </div>
                   </div>
                 </div>
@@ -126,9 +139,16 @@ export default function DoctorLogin() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel className="flex items-center gap-2">
+                          <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span>Email Address</span>
+                        </FormLabel>
                         <FormControl>
-                          <Input placeholder="doctor@example.com" {...field} />
+                          <Input 
+                            placeholder="doctor@example.com" 
+                            className="border-input bg-muted/5" 
+                            {...field} 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -139,38 +159,67 @@ export default function DoctorLogin() {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Password</FormLabel>
+                        <div className="flex items-center justify-between">
+                          <FormLabel className="flex items-center gap-2">
+                            <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span>Password</span>
+                          </FormLabel>
+                          <Link 
+                            href="#" 
+                            className="text-xs text-primary hover:underline"
+                          >
+                            Forgot password?
+                          </Link>
+                        </div>
                         <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} />
+                          <Input 
+                            type="password" 
+                            placeholder="••••••••" 
+                            className="border-input bg-muted/5"
+                            {...field} 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button 
+                    type="submit" 
+                    className="w-full font-medium" 
+                    disabled={isLoading}
+                    size="lg"
+                  >
                     {isLoading ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : null}
-                    Sign In
+                    ) : (
+                      <User className="mr-2 h-4 w-4" />
+                    )}
+                    Sign In to Dashboard
                   </Button>
                 </form>
               </Form>
             )}
           </CardContent>
-          <CardFooter className="flex flex-col">
+          <CardFooter className="flex flex-col bg-muted/5 mt-4">
             <div className="relative my-3 w-full">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+                <span className="w-full border-t border-muted" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
               </div>
             </div>
-            <Button variant="outline" type="button" onClick={handleGoogleLogin} className="w-full" disabled={isLoading}>
+            <Button 
+              variant="outline" 
+              type="button" 
+              onClick={handleGoogleLogin} 
+              className="w-full bg-background hover:bg-muted/10 border-muted-foreground/20 text-foreground hover:text-foreground" 
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <svg width="16" height="16" viewBox="0 0 48 48">
+                <svg width="18" height="18" viewBox="0 0 48 48" className="mr-2">
                   <path
                     fill="#EA4335"
                     d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0S12.1 2.38 7.74 6.25l6.85 6.85c2.5-2.38 5.67-3.6 9.21-3.6z"
@@ -190,13 +239,20 @@ export default function DoctorLogin() {
                   <path fill="none" d="M0 0h48v48H0z"></path>
                 </svg>
               )}
-              <span className="ml-2">Sign in with Google</span>
+              Sign in with Google
             </Button>
-            <div className="mt-4 text-center text-sm">
-              Don't have an account?{' '}
-              <Link href="/doctor/register" className="text-primary underline-offset-4 hover:underline">
-                Register here
-              </Link>
+            <div className="mt-6 text-center">
+              <p className="text-sm text-muted-foreground">
+                Don't have an account?{' '}
+                <Link href="/doctor/register" className="text-primary font-medium hover:underline">
+                  Create account
+                </Link>
+              </p>
+            </div>
+            <div className="mt-4 text-center text-xs text-muted-foreground">
+              By signing in, you agree to our{' '}
+              <Link href="#" className="hover:underline">Terms of Service</Link> and{' '}
+              <Link href="#" className="hover:underline">Privacy Policy</Link>
             </div>
           </CardFooter>
         </Card>

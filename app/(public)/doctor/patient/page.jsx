@@ -8,6 +8,7 @@ import {
   Loader2, 
   Search, 
   User, 
+  Users,
   Plus, 
   FileText, 
   CalendarClock,
@@ -232,17 +233,24 @@ export default function PatientListPage() {
 
   return (
     <ProtectedRoute allowedRoles={['doctor']}>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background bg-gradient-to-b from-muted/30 to-background">
         <DoctorNavbar />
         
-        <main className="container py-10">
+        <main className="container py-10 px-4 md:px-6">
           <header className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-2">
+                <Users className="h-3.5 w-3.5" />
+                <span>Patient Management</span>
+              </div>
               <h1 className="text-3xl font-bold">Patients</h1>
               <p className="text-muted-foreground mt-1">Manage your patient records</p>
             </div>
             
-            <Button onClick={() => router.push('/doctor/patient/new')} className="gap-2">
+            <Button 
+              onClick={() => router.push('/doctor/patient/new')} 
+              className="gap-2 h-10 px-4 shadow-sm self-start sm:self-center"
+            >
               <Plus className="h-4 w-4" />
               Add New Patient
             </Button>
@@ -255,53 +263,64 @@ export default function PatientListPage() {
           ) : (
             <div className="space-y-6">
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle>Patient Directory</CardTitle>
-                  <CardDescription>
-                    View and manage all your registered patients
-                  </CardDescription>
+                <CardHeader className="pb-3 border-b">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 rounded-full bg-primary/10">
+                      <Users className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle>Patient Directory</CardTitle>
+                      <CardDescription>
+                        View and manage all your registered patients
+                      </CardDescription>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   {/* Search and Filter Controls */}
                   <div className="flex flex-col md:flex-row gap-4 mb-6">
                     <div className="relative flex-1">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        placeholder="Search patients by name, email, or phone..." 
-                        className="pl-10"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          placeholder="Search patients by name, email, or phone..." 
+                          className="pl-10 bg-card/50 border-input shadow-sm"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                      </div>
                     </div>
                     
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <Select value={filterBloodType} onValueChange={setFilterBloodType}>
-                        <SelectTrigger className="w-36">
+                        <SelectTrigger className="w-full md:w-36 bg-card/50 border-input shadow-sm">
                           <SelectValue placeholder="Blood Type" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectLabel>Blood Type</SelectLabel>
+                            <SelectLabel className="font-semibold">Blood Type</SelectLabel>
                             <SelectItem value="all">All Types</SelectItem>
-                            <SelectItem value="O+">O+</SelectItem>
-                            <SelectItem value="O-">O-</SelectItem>
-                            <SelectItem value="A+">A+</SelectItem>
-                            <SelectItem value="A-">A-</SelectItem>
-                            <SelectItem value="B+">B+</SelectItem>
-                            <SelectItem value="B-">B-</SelectItem>
-                            <SelectItem value="AB+">AB+</SelectItem>
-                            <SelectItem value="AB-">AB-</SelectItem>
+                            <div className="grid grid-cols-2 gap-1">
+                              <SelectItem value="O+">O+</SelectItem>
+                              <SelectItem value="O-">O-</SelectItem>
+                              <SelectItem value="A+">A+</SelectItem>
+                              <SelectItem value="A-">A-</SelectItem>
+                              <SelectItem value="B+">B+</SelectItem>
+                              <SelectItem value="B-">B-</SelectItem>
+                              <SelectItem value="AB+">AB+</SelectItem>
+                              <SelectItem value="AB-">AB-</SelectItem>
+                            </div>
                           </SelectGroup>
                         </SelectContent>
                       </Select>
                       
                       <Select value={filterGender} onValueChange={setFilterGender}>
-                        <SelectTrigger className="w-36">
+                        <SelectTrigger className="w-full md:w-36 bg-card/50 border-input shadow-sm">
                           <SelectValue placeholder="Gender" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectLabel>Gender</SelectLabel>
+                            <SelectLabel className="font-semibold">Gender</SelectLabel>
                             <SelectItem value="all">All</SelectItem>
                             <SelectItem value="Male">Male</SelectItem>
                             <SelectItem value="Female">Female</SelectItem>
@@ -310,12 +329,17 @@ export default function PatientListPage() {
                         </SelectContent>
                       </Select>
                       
-                      <Button variant="outline" size="icon" onClick={() => {
-                        setSearchQuery('');
-                        setFilterBloodType('all');
-                        setFilterGender('all');
-                      }}>
-                        <Filter className="h-4 w-4" />
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="h-10 w-10 border-input shadow-sm"
+                        onClick={() => {
+                          setSearchQuery('');
+                          setFilterBloodType('all');
+                          setFilterGender('all');
+                        }}
+                      >
+                        <Filter className="h-4 w-4 text-primary" />
                       </Button>
                     </div>
                   </div>
@@ -388,8 +412,16 @@ export default function PatientListPage() {
                             >
                               <TableCell>
                                 <div className="flex items-center gap-3">
-                                  <div className="bg-primary/10 rounded-full p-2">
-                                    <User className="h-4 w-4 text-primary" />
+                                  <div className={`rounded-full p-2 ${
+                                    patient.gender === 'Male' ? 'bg-blue-50' : 
+                                    patient.gender === 'Female' ? 'bg-pink-50' : 
+                                    'bg-purple-50'
+                                  }`}>
+                                    <User className={`h-4 w-4 ${
+                                      patient.gender === 'Male' ? 'text-blue-500' : 
+                                      patient.gender === 'Female' ? 'text-pink-500' : 
+                                      'text-purple-500'
+                                    }`} />
                                   </div>
                                   <div>
                                     <div className="font-medium">{patient.name}</div>
@@ -400,13 +432,20 @@ export default function PatientListPage() {
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <div className="flex items-center gap-1">
-                                  <span>{getAge(patient.dob)}</span>
-                                  <span className="text-muted-foreground">/</span>
-                                  <span>{patient.gender}</span>
+                                <div className="flex items-center gap-2">
+                                  <div className="bg-muted/20 px-2 py-1 rounded text-sm">
+                                    {getAge(patient.dob)} yrs
+                                  </div>
+                                  <Badge variant="outline" className={`${
+                                    patient.gender === 'Male' ? 'border-blue-200 bg-blue-50 text-blue-700' : 
+                                    patient.gender === 'Female' ? 'border-pink-200 bg-pink-50 text-pink-700' : 
+                                    'border-purple-200 bg-purple-50 text-purple-700'
+                                  }`}>
+                                    {patient.gender}
+                                  </Badge>
                                 </div>
-                                <div className="text-xs text-muted-foreground mt-1">
-                                  <Badge variant="outline" className="text-xs">
+                                <div className="text-xs mt-1.5">
+                                  <Badge variant="outline" className="text-xs font-medium bg-red-50 border-red-200 text-red-700">
                                     {patient.bloodType}
                                   </Badge>
                                 </div>
@@ -419,44 +458,44 @@ export default function PatientListPage() {
                               </TableCell>
                               <TableCell className="hidden lg:table-cell">
                                 {patient.chronicConditions.length > 0 ? (
-                                  <div className="flex flex-wrap gap-1">
+                                  <div className="flex flex-wrap gap-1.5">
                                     {patient.chronicConditions.map((condition, i) => (
                                       <Badge 
                                         key={i} 
                                         variant="outline" 
-                                        className="bg-amber-50 text-amber-800 text-xs"
+                                        className="bg-amber-50 text-amber-800 text-xs font-medium border-amber-200"
                                       >
                                         {condition}
                                       </Badge>
                                     ))}
                                   </div>
                                 ) : (
-                                  <span className="text-xs text-muted-foreground">None</span>
+                                  <span className="text-xs text-muted-foreground bg-muted/20 px-2 py-1 rounded">None</span>
                                 )}
                               </TableCell>
                               <TableCell>
                                 {patient.lastVisit ? (
-                                  <div className="flex items-center gap-1">
-                                    <CalendarClock className="h-3 w-3 text-muted-foreground" />
-                                    <span>{format(patient.lastVisit, 'MMM d, yyyy')}</span>
+                                  <div className="flex items-center gap-1.5 bg-muted/20 px-2 py-1 rounded w-fit">
+                                    <CalendarClock className="h-3.5 w-3.5 text-muted-foreground" />
+                                    <span className="text-sm">{format(patient.lastVisit, 'MMM d, yyyy')}</span>
                                   </div>
                                 ) : (
-                                  <span className="text-xs text-muted-foreground">Never</span>
+                                  <span className="text-xs text-muted-foreground bg-muted/20 px-2 py-1 rounded">Never</span>
                                 )}
                               </TableCell>
                               <TableCell>
                                 {patient.upcomingAppointment ? (
-                                  <Badge className="bg-blue-100 text-blue-800">
+                                  <Badge className="bg-blue-100 text-blue-800 font-medium border-blue-200">
                                     {format(patient.upcomingAppointment, 'MMM d')}
                                   </Badge>
                                 ) : (
-                                  <span className="text-xs text-muted-foreground">None</span>
+                                  <span className="text-xs text-muted-foreground bg-muted/20 px-2 py-1 rounded">None</span>
                                 )}
                               </TableCell>
                               <TableCell className="text-right">
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                    <Button variant="ghost" className="h-8 w-8 p-0">
+                                    <Button variant="outline" className="h-8 w-8 p-0 border-input shadow-sm">
                                       <ChevronDown className="h-4 w-4" />
                                     </Button>
                                   </DropdownMenuTrigger>

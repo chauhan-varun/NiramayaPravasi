@@ -12,6 +12,7 @@ import {
   Calendar, 
   Clock, 
   ClipboardList,
+  LayoutDashboard,
   Phone,
   Mail,
   MapPin,
@@ -145,21 +146,27 @@ export default function PatientDetailsPage() {
 
   return (
     <ProtectedRoute allowedRoles={['doctor']}>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background bg-gradient-to-b from-muted/30 to-background">
         <DoctorNavbar />
         
-        <main className="container py-10">
+        <main className="container py-10 px-4 md:px-6">
           <header className="mb-8">
             <div className="flex items-center gap-2 mb-4">
               <Button 
                 variant="ghost" 
                 size="icon" 
                 onClick={() => router.back()}
-                className="rounded-full"
+                className="rounded-full hover:bg-muted/50"
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <h1 className="text-2xl font-bold">Patient Details</h1>
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-2">
+                  <User className="h-3.5 w-3.5" />
+                  <span>Patient Profile</span>
+                </div>
+                <h1 className="text-2xl font-bold">Patient Details</h1>
+              </div>
             </div>
           </header>
           
@@ -174,84 +181,113 @@ export default function PatientDetailsPage() {
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex flex-col items-center text-center mb-6">
-                      <Avatar className="h-24 w-24 mb-4">
-                        {patient.avatar ? (
-                          <AvatarImage src={patient.avatar} alt={patient.name} />
-                        ) : (
-                          <AvatarFallback className="bg-primary/10">
-                            <User className="h-12 w-12 text-primary" />
-                          </AvatarFallback>
-                        )}
-                      </Avatar>
+                      <div className="relative">
+                        <div className="absolute inset-0 rounded-full bg-primary/5 animate-pulse"></div>
+                        <Avatar className="h-24 w-24 mb-4 border-2 border-primary/10 shadow-sm">
+                          {patient.avatar ? (
+                            <AvatarImage src={patient.avatar} alt={patient.name} />
+                          ) : (
+                            <AvatarFallback className={`${
+                              patient.gender === 'Female' ? 'bg-pink-50' : 
+                              patient.gender === 'Male' ? 'bg-blue-50' : 
+                              'bg-primary/10'
+                            }`}>
+                              <User className={`h-12 w-12 ${
+                                patient.gender === 'Female' ? 'text-pink-500' : 
+                                patient.gender === 'Male' ? 'text-blue-500' : 
+                                'text-primary'
+                              }`} />
+                            </AvatarFallback>
+                          )}
+                        </Avatar>
+                      </div>
                       
                       <h2 className="font-bold text-lg">{patient.name}</h2>
                       <p className="text-muted-foreground text-sm">
                         Patient ID: {patient.id}
                       </p>
                       <div className="flex gap-2 mt-2">
-                        <Badge>{patient.gender}</Badge>
-                        <Badge variant="outline">{patient.bloodType}</Badge>
+                        <Badge className={`${
+                          patient.gender === 'Female' ? 'bg-pink-100 text-pink-800 border-pink-200' : 
+                          patient.gender === 'Male' ? 'bg-blue-100 text-blue-800 border-blue-200' : 
+                          ''
+                        }`}>{patient.gender}</Badge>
+                        <Badge variant="outline" className="bg-red-50 border-red-200 text-red-700">{patient.bloodType}</Badge>
                       </div>
                     </div>
                     
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{patient.phone}</span>
+                      <div className="flex items-center gap-3 p-2 rounded-md bg-muted/10 hover:bg-muted/20 transition-colors">
+                        <div className="p-1.5 rounded-full bg-primary/10">
+                          <Phone className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="text-sm font-medium">{patient.phone}</span>
                       </div>
                       
-                      <div className="flex items-center gap-3">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{patient.email}</span>
+                      <div className="flex items-center gap-3 p-2 rounded-md bg-muted/10 hover:bg-muted/20 transition-colors">
+                        <div className="p-1.5 rounded-full bg-primary/10">
+                          <Mail className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="text-sm font-medium">{patient.email}</span>
                       </div>
                       
-                      <div className="flex items-start gap-3">
-                        <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div className="flex items-start gap-3 p-2 rounded-md bg-muted/10 hover:bg-muted/20 transition-colors">
+                        <div className="p-1.5 rounded-full bg-primary/10 mt-0.5">
+                          <MapPin className="h-4 w-4 text-primary" />
+                        </div>
                         <span className="text-sm">{patient.address}</span>
                       </div>
                       
-                      <div className="flex items-center gap-3">
-                        <Cake className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{format(patient.dob, 'MMM d, yyyy')} ({new Date().getFullYear() - patient.dob.getFullYear()} years)</span>
+                      <div className="flex items-center gap-3 p-2 rounded-md bg-muted/10 hover:bg-muted/20 transition-colors">
+                        <div className="p-1.5 rounded-full bg-primary/10">
+                          <Cake className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="text-sm">
+                          <div className="font-medium">{format(patient.dob, 'MMM d, yyyy')}</div>
+                          <div className="text-xs text-muted-foreground">{new Date().getFullYear() - patient.dob.getFullYear()} years old</div>
+                        </div>
                       </div>
                     </div>
                     
                     <div className="border-t mt-6 pt-6">
-                      <h3 className="font-medium mb-3">Medical Information</h3>
+                      <h3 className="font-medium mb-3 flex items-center gap-2">
+                        <Shield className="h-4 w-4 text-primary" />
+                        Medical Information
+                      </h3>
                       
                       <div className="space-y-4">
-                        <div>
-                          <h4 className="text-sm font-medium flex items-center gap-2">
+                        <div className="p-3 bg-red-50/50 rounded-md border border-red-100">
+                          <h4 className="text-sm font-medium flex items-center gap-2 mb-2">
                             <AlertCircle className="h-4 w-4 text-red-500" />
-                            Allergies
+                            <span className="text-red-700">Allergies</span>
                           </h4>
-                          <div className="mt-1 flex flex-wrap gap-1">
+                          <div className="flex flex-wrap gap-1.5">
                             {patient.allergies.length > 0 ? (
                               patient.allergies.map((allergy, i) => (
-                                <Badge key={i} variant="outline" className="bg-red-50">
+                                <Badge key={i} variant="outline" className="bg-red-50 border-red-200 text-red-700 font-medium">
                                   {allergy}
                                 </Badge>
                               ))
                             ) : (
-                              <span className="text-sm text-muted-foreground">No known allergies</span>
+                              <span className="text-sm text-red-600/70 bg-red-50 px-2 py-1 rounded">No known allergies</span>
                             )}
                           </div>
                         </div>
                         
-                        <div>
-                          <h4 className="text-sm font-medium flex items-center gap-2">
+                        <div className="p-3 bg-amber-50/50 rounded-md border border-amber-100">
+                          <h4 className="text-sm font-medium flex items-center gap-2 mb-2">
                             <Heart className="h-4 w-4 text-amber-500" />
-                            Chronic Conditions
+                            <span className="text-amber-700">Chronic Conditions</span>
                           </h4>
-                          <div className="mt-1 flex flex-wrap gap-1">
+                          <div className="flex flex-wrap gap-1.5">
                             {patient.chronicConditions.length > 0 ? (
                               patient.chronicConditions.map((condition, i) => (
-                                <Badge key={i} variant="outline" className="bg-amber-50">
+                                <Badge key={i} variant="outline" className="bg-amber-50 border-amber-200 text-amber-700 font-medium">
                                   {condition}
                                 </Badge>
                               ))
                             ) : (
-                              <span className="text-sm text-muted-foreground">None</span>
+                              <span className="text-sm text-amber-600/70 bg-amber-50 px-2 py-1 rounded">None</span>
                             )}
                           </div>
                         </div>
@@ -259,13 +295,18 @@ export default function PatientDetailsPage() {
                     </div>
                     
                     <div className="border-t mt-6 pt-6">
-                      <h3 className="font-medium mb-3">Emergency Contact</h3>
-                      <p className="text-sm">{patient.emergencyContact}</p>
+                      <h3 className="font-medium mb-3 flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-primary" />
+                        Emergency Contact
+                      </h3>
+                      <div className="p-3 bg-blue-50/50 rounded-md border border-blue-100">
+                        <p className="text-sm font-medium text-blue-700">{patient.emergencyContact}</p>
+                      </div>
                     </div>
                   </CardContent>
-                  <CardFooter className="border-t flex-col items-stretch gap-2">
-                    <Button variant="outline" className="w-full" onClick={() => router.push(`/doctor/appointments/new?patient=${patient.id}`)}>
-                      <Calendar className="h-4 w-4 mr-2" />
+                  <CardFooter className="border-t flex-col items-stretch gap-2 bg-muted/5 pt-4">
+                    <Button variant="outline" className="w-full border-primary/20 bg-primary/5 hover:bg-primary/10" onClick={() => router.push(`/doctor/appointments/new?patient=${patient.id}`)}>
+                      <Calendar className="h-4 w-4 mr-2 text-primary" />
                       Schedule Appointment
                     </Button>
                   </CardFooter>
@@ -275,21 +316,42 @@ export default function PatientDetailsPage() {
               {/* Main Content */}
               <div className="lg:col-span-3 space-y-6">
                 <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="grid grid-cols-4">
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="appointments">Appointments</TabsTrigger>
-                    <TabsTrigger value="records">Medical Records</TabsTrigger>
-                    <TabsTrigger value="prescriptions">Prescriptions</TabsTrigger>
-                  </TabsList>
+                  <div className="border rounded-lg p-1 bg-muted/20 mb-2">
+                    <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-1">
+                      <TabsTrigger value="overview" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                        <LayoutDashboard className="h-4 w-4 mr-2 hidden sm:inline" />
+                        Overview
+                      </TabsTrigger>
+                      <TabsTrigger value="appointments" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                        <Calendar className="h-4 w-4 mr-2 hidden sm:inline" />
+                        Appointments
+                      </TabsTrigger>
+                      <TabsTrigger value="records" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                        <FileText className="h-4 w-4 mr-2 hidden sm:inline" />
+                        Medical Records
+                      </TabsTrigger>
+                      <TabsTrigger value="prescriptions" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                        <Pill className="h-4 w-4 mr-2 hidden sm:inline" />
+                        Prescriptions
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
                   
                   {/* Overview Tab */}
                   <TabsContent value="overview" className="space-y-6 mt-6">
                     <Card>
-                      <CardHeader className="pb-3">
-                        <CardTitle>Patient Summary</CardTitle>
-                        <CardDescription>
-                          Overview of {patient.name}'s health profile
-                        </CardDescription>
+                      <CardHeader className="pb-3 border-b">
+                        <div className="flex items-center gap-2">
+                          <div className="p-1.5 rounded-full bg-primary/10">
+                            <User className="h-4 w-4 text-primary" />
+                          </div>
+                          <div>
+                            <CardTitle>Patient Summary</CardTitle>
+                            <CardDescription>
+                              Overview of {patient.name}'s health profile
+                            </CardDescription>
+                          </div>
+                        </div>
                       </CardHeader>
                       <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -262,30 +262,35 @@ export default function DoctorReminders() {
 
   return (
     <ProtectedRoute allowedRoles={['doctor']}>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background bg-gradient-to-b from-muted/30 to-background">
         <DoctorNavbar />
         
-        <main className="container py-10">
+        <main className="container py-10 px-4 md:px-6">
           <header className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-2">
+                <Bell className="h-3.5 w-3.5" />
+                <span>Task Management</span>
+              </div>
               <h1 className="text-3xl font-bold">Reminders</h1>
               <p className="text-muted-foreground mt-1">Manage your tasks and follow-ups</p>
             </div>
             
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <CalendarIcon className="h-4 w-4" />
+                  <Button variant="outline" size="sm" className="gap-2 h-10 px-4 shadow-sm border-input">
+                    <CalendarIcon className="h-4 w-4 text-primary" />
                     {filterDate ? format(filterDate, 'PPP') : 'All dates'}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-auto p-0" align="end">
                   <Calendar
                     mode="single"
                     selected={filterDate}
                     onSelect={(date) => setFilterDate(date)}
                     initialFocus
+                    className="rounded-md border shadow-sm"
                   />
                   {filterDate && (
                     <div className="p-3 border-t">
@@ -303,26 +308,46 @@ export default function DoctorReminders() {
               </Popover>
               
               <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-full md:w-36 bg-card/50 border-input shadow-sm h-10">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="all">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-gray-400"></div>
+                      <span>All</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="pending">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-amber-500"></div>
+                      <span>Pending</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="completed">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                      <span>Completed</span>
+                    </div>
+                  </SelectItem>
                 </SelectContent>
               </Select>
               
               <Dialog open={showAddReminder} onOpenChange={setShowAddReminder}>
                 <DialogTrigger asChild>
-                  <Button className="gap-2">
+                  <Button className="gap-2 h-10 px-4 shadow-sm">
                     <Plus className="h-4 w-4" />
                     New Reminder
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[550px]">
                   <DialogHeader>
-                    <DialogTitle>Create New Reminder</DialogTitle>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-2 bg-primary/10 rounded-full">
+                        <Bell className="h-4 w-4 text-primary" />
+                      </div>
+                      <DialogTitle>Create New Reminder</DialogTitle>
+                    </div>
                     <DialogDescription>
                       Add a new reminder for tasks, follow-ups, or important events
                     </DialogDescription>
@@ -335,9 +360,16 @@ export default function DoctorReminders() {
                         name="title"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Reminder Title</FormLabel>
+                            <FormLabel className="flex items-center gap-2">
+                              <Bell className="h-3.5 w-3.5 text-muted-foreground" />
+                              <span>Reminder Title</span>
+                            </FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter reminder title" {...field} />
+                              <Input 
+                                placeholder="Enter reminder title" 
+                                className="border-input bg-muted/5" 
+                                {...field} 
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -349,11 +381,14 @@ export default function DoctorReminders() {
                         name="description"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Description (Optional)</FormLabel>
+                            <FormLabel className="flex items-center gap-2">
+                              <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                              <span>Description (Optional)</span>
+                            </FormLabel>
                             <FormControl>
                               <Textarea 
                                 placeholder="Add more details about the reminder" 
-                                className="min-h-24" 
+                                className="min-h-24 border-input bg-muted/5" 
                                 {...field} 
                               />
                             </FormControl>
@@ -362,34 +397,38 @@ export default function DoctorReminders() {
                         )}
                       />
                       
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <FormField
                           control={form.control}
                           name="date"
                           render={({ field }) => (
                             <FormItem className="flex flex-col">
-                              <FormLabel>Date</FormLabel>
+                              <FormLabel className="flex items-center gap-2">
+                                <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                                <span>Date</span>
+                              </FormLabel>
                               <Popover>
                               <PopoverTrigger asChild>
                                 <FormControl>
                                   <div
-                                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background cursor-pointer text-left"
+                                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-muted/5 px-3 py-2 text-sm ring-offset-background cursor-pointer text-left"
                                   >
                                     {field.value ? (
                                       format(field.value, "PPP")
                                     ) : (
                                       <span>Select a date</span>
                                     )}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    <CalendarIcon className="ml-auto h-4 w-4 text-muted-foreground" />
                                   </div>
                                 </FormControl>
                               </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
+                                <PopoverContent className="w-auto p-0" align="start">
                                   <Calendar
                                     mode="single"
                                     selected={field.value}
                                     onSelect={field.onChange}
                                     initialFocus
+                                    className="rounded-md border shadow-sm"
                                   />
                                 </PopoverContent>
                               </Popover>
@@ -403,24 +442,29 @@ export default function DoctorReminders() {
                           name="time"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Time</FormLabel>
+                              <FormLabel className="flex items-center gap-2">
+                                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                                <span>Time</span>
+                              </FormLabel>
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
-                                  <SelectTrigger>
+                                  <SelectTrigger className="border-input bg-muted/5">
                                     <SelectValue placeholder="Select time" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  {[
-                                    '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', 
-                                    '11:30 AM', '12:00 PM', '12:30 PM', '1:00 PM', '1:30 PM', 
-                                    '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM', '4:00 PM', 
-                                    '4:30 PM', '5:00 PM', '5:30 PM'
-                                  ].map((time) => (
-                                    <SelectItem key={time} value={time}>
-                                      {time}
-                                    </SelectItem>
-                                  ))}
+                                  <div className="grid grid-cols-2 gap-1">
+                                    {[
+                                      '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', 
+                                      '11:30 AM', '12:00 PM', '12:30 PM', '1:00 PM', '1:30 PM', 
+                                      '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM', '4:00 PM', 
+                                      '4:30 PM', '5:00 PM', '5:30 PM'
+                                    ].map((time) => (
+                                      <SelectItem key={time} value={time}>
+                                        {time}
+                                      </SelectItem>
+                                    ))}
+                                  </div>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -429,16 +473,19 @@ export default function DoctorReminders() {
                         />
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <FormField
                           control={form.control}
                           name="patientId"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Related Patient (Optional)</FormLabel>
+                              <FormLabel className="flex items-center gap-2">
+                                <User className="h-3.5 w-3.5 text-muted-foreground" />
+                                <span>Related Patient (Optional)</span>
+                              </FormLabel>
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
-                                  <SelectTrigger>
+                                  <SelectTrigger className="border-input bg-muted/5">
                                     <SelectValue placeholder="Select patient" />
                                   </SelectTrigger>
                                 </FormControl>
@@ -461,17 +508,35 @@ export default function DoctorReminders() {
                           name="priority"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Priority</FormLabel>
+                              <FormLabel className="flex items-center gap-2">
+                                <AlertCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                                <span>Priority</span>
+                              </FormLabel>
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
-                                  <SelectTrigger>
+                                  <SelectTrigger className="border-input bg-muted/5">
                                     <SelectValue placeholder="Select priority" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="low">Low</SelectItem>
-                                  <SelectItem value="medium">Medium</SelectItem>
-                                  <SelectItem value="high">High</SelectItem>
+                                  <SelectItem value="low">
+                                    <div className="flex items-center gap-2">
+                                      <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                                      <span>Low</span>
+                                    </div>
+                                  </SelectItem>
+                                  <SelectItem value="medium">
+                                    <div className="flex items-center gap-2">
+                                      <div className="h-2 w-2 rounded-full bg-amber-500"></div>
+                                      <span>Medium</span>
+                                    </div>
+                                  </SelectItem>
+                                  <SelectItem value="high">
+                                    <div className="flex items-center gap-2">
+                                      <div className="h-2 w-2 rounded-full bg-red-500"></div>
+                                      <span>High</span>
+                                    </div>
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -482,9 +547,12 @@ export default function DoctorReminders() {
                       
                       <DialogFooter>
                         <DialogClose asChild>
-                          <Button type="button" variant="outline">Cancel</Button>
+                          <Button type="button" variant="outline" className="border-input">Cancel</Button>
                         </DialogClose>
-                        <Button type="submit">Create Reminder</Button>
+                        <Button type="submit" className="gap-2">
+                          <Plus className="h-4 w-4" />
+                          Create Reminder
+                        </Button>
                       </DialogFooter>
                     </form>
                   </Form>
@@ -533,17 +601,28 @@ export default function DoctorReminders() {
                       
                       <div className="space-y-3">
                         {dateReminders.map(reminder => (
-                          <Card key={reminder.id} className={`overflow-hidden ${reminder.completed ? 'bg-muted/50' : ''}`}>
+                          <Card key={reminder.id} className={`overflow-hidden border shadow-sm hover:shadow-md transition-shadow ${reminder.completed ? 'bg-muted/30' : ''}`}>
                             <div className={`h-1 ${
                               reminder.priority === 'high' ? 'bg-red-500' : 
                               reminder.priority === 'medium' ? 'bg-amber-500' : 
                               'bg-green-500'
                             }`}></div>
-                            <CardContent className="p-5">
-                              <div className="flex items-start">
+                            <CardContent className="p-4 md:p-5">
+                              <div className="flex items-start gap-3">
+                                <div className={`rounded-full p-2 mt-1 ${
+                                  reminder.priority === 'high' ? 'bg-red-50' : 
+                                  reminder.priority === 'medium' ? 'bg-amber-50' : 
+                                  'bg-green-50'
+                                }`}>
+                                  <Bell className={`h-5 w-5 ${
+                                    reminder.priority === 'high' ? 'text-red-500' : 
+                                    reminder.priority === 'medium' ? 'text-amber-500' : 
+                                    'text-green-500'
+                                  }`} />
+                                </div>
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-1">
-                                    <h3 className={`font-medium ${reminder.completed ? 'text-muted-foreground line-through' : ''}`}>
+                                    <h3 className={`font-medium text-base ${reminder.completed ? 'text-muted-foreground line-through' : ''}`}>
                                       {reminder.title}
                                     </h3>
                                     {getPriorityBadge(reminder.priority)}
@@ -555,33 +634,33 @@ export default function DoctorReminders() {
                                     </p>
                                   )}
                                   
-                                  <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                                    <div className="flex items-center">
-                                      <Clock className="h-4 w-4 mr-1" />
+                                  <div className="flex flex-wrap gap-3 text-sm">
+                                    <div className="flex items-center bg-muted/20 px-2 py-1 rounded-md">
+                                      <Clock className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
                                       <span>{reminder.time}</span>
                                     </div>
                                     
                                     {reminder.patient && (
-                                      <div className="flex items-center">
-                                        <User className="h-4 w-4 mr-1" />
+                                      <div className="flex items-center bg-muted/20 px-2 py-1 rounded-md">
+                                        <User className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
                                         <span>{reminder.patient.name}</span>
                                       </div>
                                     )}
                                     
                                     {reminder.completed && (
-                                      <div className="flex items-center text-green-600">
-                                        <CheckCircle2 className="h-4 w-4 mr-1" />
+                                      <div className="flex items-center bg-green-50 text-green-600 px-2 py-1 rounded-md">
+                                        <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
                                         <span>Completed</span>
                                       </div>
                                     )}
                                   </div>
                                 </div>
                                 
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-1 ml-2">
                                   <Button 
                                     variant={reminder.completed ? "outline" : "default"} 
                                     size="icon"
-                                    className="h-8 w-8"
+                                    className={`h-8 w-8 ${reminder.completed ? 'border-green-200 bg-green-50 hover:bg-green-100 hover:text-green-700' : ''}`}
                                     onClick={() => toggleReminderStatus(reminder.id)}
                                   >
                                     <Check className="h-4 w-4" />
@@ -589,17 +668,17 @@ export default function DoctorReminders() {
                                   
                                   <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                      <Button variant="outline" size="icon" className="h-8 w-8">
+                                      <Button variant="outline" size="icon" className="h-8 w-8 border-input">
                                         <ChevronDown className="h-4 w-4" />
                                       </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                      <DropdownMenuItem className="flex gap-2">
+                                      <DropdownMenuItem className="flex gap-2 cursor-pointer">
                                         <Edit className="h-4 w-4" />
                                         <span>Edit</span>
                                       </DropdownMenuItem>
                                       <DropdownMenuItem 
-                                        className="flex gap-2 text-red-600" 
+                                        className="flex gap-2 text-red-600 cursor-pointer" 
                                         onClick={() => deleteReminder(reminder.id)}
                                       >
                                         <Trash2 className="h-4 w-4" />

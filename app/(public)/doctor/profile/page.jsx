@@ -10,6 +10,9 @@ import { toast } from 'sonner';
 import { 
   Loader2, 
   User, 
+  UserCog,
+  Settings,
+  LayoutDashboard,
   Mail, 
   Phone, 
   MapPin, 
@@ -167,11 +170,15 @@ export default function DoctorProfile() {
   
   return (
     <ProtectedRoute allowedRoles={['doctor']}>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background bg-gradient-to-b from-muted/30 to-background">
         <DoctorNavbar />
         
-        <main className="container py-10">
+        <main className="container py-10 px-4 md:px-6">
           <header className="mb-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-2">
+              <UserCog className="h-3.5 w-3.5" />
+              <span>Profile Settings</span>
+            </div>
             <h1 className="text-3xl font-bold">Doctor Profile</h1>
             <p className="text-muted-foreground mt-1">Manage your professional information</p>
           </header>
@@ -184,11 +191,12 @@ export default function DoctorProfile() {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {/* Left Sidebar */}
               <div className="lg:col-span-1">
-                <Card>
+                <Card className="border shadow-sm">
                   <CardContent className="pt-6">
                     <div className="flex flex-col items-center text-center">
                       <div className="relative mb-4">
-                        <Avatar className="h-24 w-24">
+                        <div className="absolute inset-0 rounded-full bg-primary/5 animate-pulse"></div>
+                        <Avatar className="h-24 w-24 border-2 border-primary/10 shadow-sm">
                           {doctorInfo.profilePicture ? (
                             <AvatarImage src={doctorInfo.profilePicture} alt={doctorInfo.name} />
                           ) : (
@@ -197,7 +205,7 @@ export default function DoctorProfile() {
                             </AvatarFallback>
                           )}
                         </Avatar>
-                        <button className="absolute bottom-0 right-0 rounded-full bg-primary p-1.5 text-white shadow-sm">
+                        <button className="absolute bottom-0 right-0 rounded-full bg-primary p-1.5 text-white shadow-sm hover:bg-primary/90 transition-colors">
                           <Camera className="h-4 w-4" />
                         </button>
                       </div>
@@ -205,51 +213,84 @@ export default function DoctorProfile() {
                       <h3 className="font-bold text-lg mt-2">{doctorInfo.name}</h3>
                       <p className="text-muted-foreground">{doctorInfo.specialization}</p>
                       
-                      <Badge className="mt-2" variant={doctorInfo.status === 'approved' ? 'outline' : 'secondary'}>
+                      <Badge 
+                        variant={doctorInfo.status === 'approved' ? 'outline' : 'secondary'}
+                        className={`mt-2 ${
+                          doctorInfo.status === 'approved' ? 'bg-green-100 text-green-800 border-green-200' : 
+                          'bg-amber-100 text-amber-800 border-amber-200'
+                        }`}
+                      >
                         {doctorInfo.status === 'approved' ? 'Approved' : doctorInfo.status}
                       </Badge>
                       
                       <div className="w-full mt-6 space-y-3">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Mail className="h-4 w-4 text-muted-foreground" />
-                          <span className="truncate">{doctorInfo.email}</span>
+                        <div className="flex items-center gap-3 p-2 rounded-md bg-muted/10 hover:bg-muted/20 transition-colors">
+                          <div className="p-1.5 rounded-full bg-primary/10">
+                            <Mail className="h-4 w-4 text-primary" />
+                          </div>
+                          <span className="truncate text-sm font-medium">{doctorInfo.email}</span>
                         </div>
                         
-                        <div className="flex items-center gap-2 text-sm">
-                          <Phone className="h-4 w-4 text-muted-foreground" />
-                          <span>{doctorInfo.phone}</span>
+                        <div className="flex items-center gap-3 p-2 rounded-md bg-muted/10 hover:bg-muted/20 transition-colors">
+                          <div className="p-1.5 rounded-full bg-primary/10">
+                            <Phone className="h-4 w-4 text-primary" />
+                          </div>
+                          <span className="text-sm font-medium">{doctorInfo.phone}</span>
                         </div>
                         
-                        <div className="flex items-start gap-2 text-sm">
-                          <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-                          <span className="text-left">{doctorInfo.address}</span>
+                        <div className="flex items-start gap-3 p-2 rounded-md bg-muted/10 hover:bg-muted/20 transition-colors">
+                          <div className="p-1.5 rounded-full bg-primary/10 mt-0.5">
+                            <MapPin className="h-4 w-4 text-primary" />
+                          </div>
+                          <span className="text-left text-sm">{doctorInfo.address}</span>
                         </div>
                       </div>
                     </div>
                   </CardContent>
-                  <CardFooter className="border-t px-6 py-4 flex justify-center">
-                    <Button variant="outline" size="sm" onClick={() => router.push('/doctor/dashboard')}>
+                  <CardFooter className="border-t px-6 py-4 flex justify-center bg-muted/5">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => router.push('/doctor/dashboard')}
+                      className="border-primary/20 bg-primary/5 hover:bg-primary/10 gap-2"
+                    >
+                      <LayoutDashboard className="h-4 w-4 text-primary" />
                       View Dashboard
                     </Button>
                   </CardFooter>
                 </Card>
                 
-                <Card className="mt-6">
-                  <CardHeader>
-                    <CardTitle className="text-base">Account Information</CardTitle>
+                <Card className="mt-6 border shadow-sm">
+                  <CardHeader className="border-b bg-muted/5 pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-full bg-blue-100">
+                        <Clock className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <CardTitle className="text-base">Account Information</CardTitle>
+                    </div>
                   </CardHeader>
-                  <CardContent className="space-y-4 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Account Status</span>
-                      <Badge variant="outline">{doctorInfo.status}</Badge>
+                  <CardContent className="space-y-4 text-sm pt-4">
+                    <div className="flex justify-between items-center p-2 rounded-md bg-muted/10 hover:bg-muted/20 transition-colors">
+                      <span className="font-medium">Account Status</span>
+                      <Badge 
+                        variant="outline" 
+                        className={`${
+                          doctorInfo.status === 'approved' ? 'bg-green-100 text-green-800 border-green-200' : 
+                          'bg-amber-100 text-amber-800 border-amber-200'
+                        }`}
+                      >
+                        {doctorInfo.status}
+                      </Badge>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Joined Date</span>
-                      <span>{doctorInfo.joinedDate.toLocaleDateString()}</span>
+                    <div className="flex justify-between items-center p-2 rounded-md bg-muted/10 hover:bg-muted/20 transition-colors">
+                      <span className="font-medium">Joined Date</span>
+                      <span className="bg-blue-50 px-2 py-1 rounded text-blue-700 text-xs">
+                        {doctorInfo.joinedDate.toLocaleDateString()}
+                      </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Last Updated</span>
-                      <span>Today</span>
+                    <div className="flex justify-between items-center p-2 rounded-md bg-muted/10 hover:bg-muted/20 transition-colors">
+                      <span className="font-medium">Last Updated</span>
+                      <span className="bg-green-50 px-2 py-1 rounded text-green-700 text-xs">Today</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -258,10 +299,18 @@ export default function DoctorProfile() {
               {/* Main Content */}
               <div className="lg:col-span-3 space-y-6">
                 <Tabs defaultValue="profile" value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="profile">Profile Information</TabsTrigger>
-                    <TabsTrigger value="settings">Account Settings</TabsTrigger>
-                  </TabsList>
+                  <div className="border rounded-lg p-1 bg-muted/20 mb-2">
+                    <TabsList className="grid w-full grid-cols-2 gap-1">
+                      <TabsTrigger value="profile" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                        <User className="h-4 w-4 mr-2 hidden sm:inline" />
+                        Profile Information
+                      </TabsTrigger>
+                      <TabsTrigger value="settings" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                        <Settings className="h-4 w-4 mr-2 hidden sm:inline" />
+                        Account Settings
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
                   
                   <TabsContent value="profile" className="space-y-6 mt-6">
                     <Card>

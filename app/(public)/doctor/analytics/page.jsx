@@ -13,7 +13,8 @@ import {
   Clock, 
   UserCog,
   Download,
-  FileText
+  FileText,
+  LayoutDashboard
 } from 'lucide-react';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -160,16 +161,20 @@ export default function DoctorAnalytics() {
   
   return (
     <ProtectedRoute allowedRoles={['doctor']}>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background bg-gradient-to-b from-muted/30 to-background">
         <DoctorNavbar />
         
-        <main className="container py-10">
-          <header className="mb-8 flex items-center justify-between">
+        <main className="container py-10 px-4 md:px-6">
+          <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-2">
+                <TrendingUp className="h-3.5 w-3.5" />
+                <span>Analytics</span>
+              </div>
               <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
               <p className="text-muted-foreground mt-1">Track your performance and patient metrics</p>
             </div>
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button variant="outline" size="sm" className="gap-2 self-start sm:self-center">
               <Download className="h-4 w-4" />
               Export Data
             </Button>
@@ -182,56 +187,64 @@ export default function DoctorAnalytics() {
           ) : (
             <>
               {/* Stats Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <Card>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+                <Card className="border-l-4 border-l-blue-500 shadow-sm hover:shadow-md transition-shadow">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Total Patients</CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <div className="p-2 bg-blue-50 rounded-full">
+                      <Users className="h-4 w-4 text-blue-500" />
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{stats.totalPatients}</div>
-                    <div className="flex items-center text-xs text-green-600 mt-1">
+                    <div className="flex items-center text-xs text-green-600 mt-1 font-medium">
                       <TrendingUp className="h-3 w-3 mr-1" />
                       <span>+{stats.newPatients} new this month</span>
                     </div>
                   </CardContent>
                 </Card>
                 
-                <Card>
+                <Card className="border-l-4 border-l-green-500 shadow-sm hover:shadow-md transition-shadow">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Appointments</CardTitle>
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <div className="p-2 bg-green-50 rounded-full">
+                      <Calendar className="h-4 w-4 text-green-500" />
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{stats.totalAppointments}</div>
                     <div className="flex items-center text-xs mt-1">
-                      <span className="text-green-600">{stats.completedAppointments} completed</span>
+                      <span className="text-green-600 font-medium">{stats.completedAppointments} completed</span>
                       <span className="mx-1">·</span>
-                      <span className="text-amber-600">{stats.pendingAppointments} pending</span>
+                      <span className="text-amber-600 font-medium">{stats.pendingAppointments} pending</span>
                     </div>
                   </CardContent>
                 </Card>
                 
-                <Card>
+                <Card className="border-l-4 border-l-purple-500 shadow-sm hover:shadow-md transition-shadow">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Patient Retention</CardTitle>
-                    <UserCog className="h-4 w-4 text-muted-foreground" />
+                    <div className="p-2 bg-purple-50 rounded-full">
+                      <UserCog className="h-4 w-4 text-purple-500" />
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{stats.patientRetention}%</div>
-                    <Progress value={stats.patientRetention} className="h-2 mt-2" />
+                    <Progress value={stats.patientRetention} className="h-2 mt-2 bg-purple-100" indicatorClassName="bg-purple-500" />
                   </CardContent>
                 </Card>
                 
-                <Card>
+                <Card className="border-l-4 border-l-amber-500 shadow-sm hover:shadow-md transition-shadow">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Rating & Satisfaction</CardTitle>
-                    <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                    <div className="p-2 bg-amber-50 rounded-full">
+                      <BarChart3 className="h-4 w-4 text-amber-500" />
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{stats.averageRating} / 5</div>
                     <div className="flex items-center text-xs mt-1">
-                      <span className="text-green-600">{stats.satisfactionRate}% patient satisfaction</span>
+                      <span className="text-green-600 font-medium">{stats.satisfactionRate}% patient satisfaction</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -239,13 +252,30 @@ export default function DoctorAnalytics() {
               
               {/* Main Content */}
               <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-                <TabsList className="grid grid-cols-5">
-                  <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="patients">Patient Analytics</TabsTrigger>
-                  <TabsTrigger value="appointments">Appointment Analytics</TabsTrigger>
-                  <TabsTrigger value="performance">Performance</TabsTrigger>
-                  <TabsTrigger value="diseases">Disease Trends</TabsTrigger>
-                </TabsList>
+                <div className="border rounded-lg p-1 bg-muted/20">
+                  <TabsList className="grid grid-cols-2 md:grid-cols-5 gap-1">
+                    <TabsTrigger value="overview" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                      <LayoutDashboard className="h-4 w-4 mr-2 hidden sm:inline" />
+                      Overview
+                    </TabsTrigger>
+                    <TabsTrigger value="patients" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                      <Users className="h-4 w-4 mr-2 hidden sm:inline" />
+                      Patient Analytics
+                    </TabsTrigger>
+                    <TabsTrigger value="appointments" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                      <Calendar className="h-4 w-4 mr-2 hidden sm:inline" />
+                      Appointments
+                    </TabsTrigger>
+                    <TabsTrigger value="performance" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                      <BarChart3 className="h-4 w-4 mr-2 hidden sm:inline" />
+                      Performance
+                    </TabsTrigger>
+                    <TabsTrigger value="diseases" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                      <FileText className="h-4 w-4 mr-2 hidden sm:inline" />
+                      Disease Trends
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
                 
                 <TabsContent value="overview" className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -535,10 +565,16 @@ export default function DoctorAnalytics() {
                 </TabsContent>
                 
                 <TabsContent value="diseases" className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-medium">Disease Prevalence Analytics</h3>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium mb-2">
+                        <TrendingUp className="h-3 w-3" />
+                        <span>Health Insights</span>
+                      </div>
+                      <h3 className="text-lg font-medium">Disease Prevalence Analytics</h3>
+                    </div>
                     <Select value={timeRange} onValueChange={setTimeRange}>
-                      <SelectTrigger className="w-32">
+                      <SelectTrigger className="w-full sm:w-40">
                         <SelectValue placeholder="Time Range" />
                       </SelectTrigger>
                       <SelectContent>
@@ -551,35 +587,50 @@ export default function DoctorAnalytics() {
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <Card className="md:col-span-2">
-                      <CardHeader>
-                        <CardTitle>Disease Trends</CardTitle>
+                    <Card className="md:col-span-2 shadow-sm hover:shadow-md transition-shadow">
+                      <CardHeader className="border-b pb-3">
+                        <CardTitle className="flex items-center gap-2">
+                          <div className="p-1.5 rounded-full bg-blue-100">
+                            <BarChart3 className="h-4 w-4 text-blue-600" />
+                          </div>
+                          Disease Trends
+                        </CardTitle>
                         <CardDescription>
                           Common diseases and their prevalence
                         </CardDescription>
                       </CardHeader>
-                      <CardContent className="h-96">
+                      <CardContent className="h-96 pt-6">
                         <div className="h-full flex flex-col justify-center items-center text-center">
-                          <BarChart3 className="h-16 w-16 text-muted-foreground mb-4" />
-                          <p className="text-sm text-muted-foreground max-w-sm">
-                            Bar chart showing disease prevalence would be rendered here.
-                          </p>
-                          <div className="mt-8 w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="bg-blue-50/50 p-6 rounded-lg mb-6">
+                            <BarChart3 className="h-16 w-16 text-blue-400 mx-auto mb-4" />
+                            <p className="text-sm text-muted-foreground max-w-sm">
+                              Bar chart showing disease prevalence would be rendered here.
+                            </p>
+                          </div>
+                          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
                             {diseaseTrends.slice(0, 6).map((disease, index) => (
-                              <div key={index} className="space-y-2">
+                              <div key={index} className="space-y-2 bg-muted/10 p-3 rounded-md">
                                 <div className="flex items-center justify-between text-sm">
                                   <span className="font-medium">{disease.disease}</span>
                                   <div className="flex items-center">
-                                    <span>{disease.cases} cases</span>
+                                    <span className="font-semibold">{disease.cases} cases</span>
                                     {disease.trend === "increasing" && (
-                                      <span className="ml-2 text-red-500">↑</span>
+                                      <span className="ml-2 text-red-500 font-bold">↑</span>
                                     )}
                                     {disease.trend === "decreasing" && (
-                                      <span className="ml-2 text-green-500">↓</span>
+                                      <span className="ml-2 text-green-500 font-bold">↓</span>
                                     )}
                                   </div>
                                 </div>
-                                <Progress value={disease.percentage} className="h-2" />
+                                <Progress 
+                                  value={disease.percentage} 
+                                  className="h-2" 
+                                  indicatorClassName={
+                                    disease.trend === "increasing" ? "bg-red-500" : 
+                                    disease.trend === "decreasing" ? "bg-green-500" : 
+                                    "bg-blue-500"
+                                  }
+                                />
                               </div>
                             ))}
                           </div>
