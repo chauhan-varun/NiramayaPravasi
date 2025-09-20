@@ -22,5 +22,5 @@ jobs:
           key: ${{ secrets.PRIVATE_SSH_KEY }}
           port: 22
           script: 
-            ./deploy.sh
+            ./NiramayaPravasi/deploy.sh 
           
