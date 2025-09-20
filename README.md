@@ -1,4 +1,4 @@
-# Nirmaya Pravasi - Patient Record Management System 
+# Nirmaya Pravasi - Patient Record Management System
 
 A comprehensive healthcare management platform built with Next.js 15, featuring multi-role authentication, SMS OTP verification, and secure patient record management.
 
