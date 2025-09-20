@@ -28,6 +28,7 @@ jobs:
             fi
             cd NiramayaPravasi
             git pull origin main
-            chmod +x deploy.sh
-            ./deploy.sh
+            pnpm i
+            pnpm build
+            pnpm start
           
