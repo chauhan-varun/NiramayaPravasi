@@ -21,6 +21,13 @@ jobs:
           username: ubuntu
           key: ${{ secrets.PRIVATE_SSH_KEY }}
           port: 22
-          script: 
-            ./NiramayaPravasi/deploy.sh 
+          script: |
+            cd /home/ubuntu
+            if [ ! -d "NiramayaPravasi" ]; then
+            git clone https://github.com/chauhan-varun/NiramayaPravasi.git
+            fi
+            cd NiramayaPravasi
+            git pull origin main
+            chmod +x deploy.sh
+            ./deploy.sh
           
