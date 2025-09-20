@@ -1,4 +1,4 @@
-cd nirmaya-pravasi
+cd NiramayaPravasi
 git pull origin main
 pnpm install
 pnpm run build
